@@ -1,0 +1,11 @@
+{
+  "best_threshold": 0.0491,
+  "precision": 0.4992,
+  "recall": 0.9967,
+  "f1": 0.6652,
+  "accuracy": 0.4983,
+  "nm_mean": 0.0511,
+  "nm_std": 0.0006,
+  "n_normal": 300,
+  "n_abnormal": 300
+}

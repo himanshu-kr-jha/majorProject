@@ -1,0 +1,8 @@
+configuration,precision,recall,f1,fp_rate,fps_estimate
+YOLO-Only,1.0,0.591,0.743,0.0,35.0
+VideoMAE-Only,1.0,0.071,0.133,0.0,8.0
+Gait-Only,0.95,0.864,0.905,0.043,12.0
+YOLO + VideoMAE,1.0,0.357,0.526,0.0,15.0
+YOLO + Gait,0.952,0.476,0.635,0.333,18.0
+Full System (Rule),1.0,0.357,0.526,0.0,20.0
+Full System (MLP),1.0,0.357,0.526,0.0,19.5

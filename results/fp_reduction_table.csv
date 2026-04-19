@@ -1,0 +1,5 @@
+stage,total_alerts,true_positives,false_positives,fp_rate,precision,recall
+YOLO Raw,300,250,50,0.2,0.8333,1.0
+YOLO + Persistence (5f),262,250,12,0.048,0.9542,1.0
+YOLO + Persist + Action,257,250,7,0.028,0.9728,1.0
+Full Fusion (3-modal),257,250,7,0.028,0.9728,1.0
