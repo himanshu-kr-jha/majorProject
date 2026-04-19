@@ -46,24 +46,25 @@
 % ─────────────────────────────────────────────────────────────
 \begin{document}
 
-\title{Gait-YOLO: Real-Time Multimodal Anomaly Detection via\\
-       Hierarchical Fusion of Object Detection, Action Recognition,\\
-       and Gait Analysis}
+\title{Reducing False Alarms in \\ Real-Time Surveillance via Hierarchical Multimodal Fusion of\\Object Detection, Action Recognition,\\ and Gait Analysis}
 
 \author{
 \IEEEauthorblockN{Himanshu Kumar Jha}
-\IEEEauthorblockA{\textit{Dept.\ of CSE, [University Name]}\\
-[City], [Country]\\
-himanshukrjha004@gmail.com}
+\IEEEauthorblockA{\textit{Dept. of  Software Engineering}\\
+\textit{Delhi Technological University}
+\\Delhi, India\\
+himanshukumarjha\_se22a11\_62@dtu.ac.in}
 \and
-\IEEEauthorblockN{Author Two}
-\IEEEauthorblockA{\textit{Dept.\ of CSE, [University Name]}\\
-[City], [Country]\\
+\IEEEauthorblockN{Ketan Anand}
+\IEEEauthorblockA{\textit{Dept. of  Software Engineering}\\
+\textit{Delhi Technological University}
+\\Delhi, India\\
 author2@university.edu}
 \and
-\IEEEauthorblockN{Author Three}
-\IEEEauthorblockA{\textit{Dept.\ of CSE, [University Name]}\\
-[City], [Country]\\
+\IEEEauthorblockN{Rahul}
+\IEEEauthorblockA{\textit{Dept. of  Software Engineering}\\
+\textit{Delhi Technological University}
+\\Delhi, India\\
 author3@university.edu}
 }
 
@@ -82,12 +83,12 @@ The three streams are merged through a two-level fusion layer: a
 rule-based hierarchical cascade followed by a lightweight MLP
 (3$\to$32$\to$16$\to$4) that jointly learns cross-modal decision boundaries.
 Evaluated on real datasets — 324 weapon images (Guns \& Knives), 600 CASIA-B
-silhouette sequences, and 45 UCF-Crime videos — the system achieves
+silhouette sequences, and 156 UCF-Crime videos — the system achieves
 mAP@0.5\,=\,0.724 on weapon detection, Gait\,F1\,=\,0.665 after
-data-calibrated threshold optimization, and a fusion F1 of \textbf{0.943}
-with precision 0.998.
+data-calibrated threshold optimization, and a fusion F1 of \textbf{0.904}
+with precision 1.000.
 Compared to a YOLO-only baseline, the false positive rate drops from 43.9\%
-to 1.8\%, a \textbf{95.8\% reduction}, while maintaining 18--22\,FPS on
+to 0.0\%, a \textbf{100\% reduction}, while maintaining 18--22\,FPS on
 commodity GPU hardware.
 \end{abstract}
 
@@ -127,7 +128,7 @@ We make the following contributions:
         gait anomaly score scale mismatch between training simulations and
         real CASIA-B silhouette data.
   \item An MLP fusion head trained on bootstrap samples labeled by the
-        rule-based logic, achieving fusion F1\,=\,0.943 and 95.8\% FP
+        rule-based logic, achieving fusion F1\,=\,0.904 and 100\% FP
         reduction against YOLO-only operation.
   \item A comprehensive ablation study across seven system configurations
         on three real-world datasets.
@@ -347,60 +348,76 @@ Fig.~\ref{fig:fusion} details the fusion decision flow.
 
 \begin{figure}[t]
 \centering
-\resizebox{0.96\columnwidth}{!}{%
-\begin{tikzpicture}[node distance=0.52cm and 0.3cm]
-  \node[block, fill=gray!15, minimum width=5.5cm] (in)
-      {Input: $(c_\text{YOLO},\; p_\text{act},\; s_\text{gait})$};
+\resizebox{0.95\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=0.6cm and 0.55cm]
 
-  % Rule path
-  \node[decision, below left=0.65cm and 0.6cm of in] (d1)
-      {$c_\text{YOLO}{\geq}0.60$?};
-  \node[decision, below=0.58cm of d1] (d2)
-      {$p_\text{act}{\geq}0.75$?};
-  \node[decision, below=0.58cm of d2] (d3)
-      {$p_\text{act}{\geq}0.40$\\$\wedge\;s{>}0.049$?};
-  \node[decision, below=0.58cm of d3] (d4)
-      {$s{>}0.052$?};
+  %% Input node
+  \node[block, fill=gray!15, minimum width=6cm] (in)
+      {Input: $(c_{\text{YOLO}},\; p_{\text{act}},\; s_{\text{gait}})$};
 
-  \draw[arr] (in.south) -- ++(0,-0.15) -| (d1.north);
-  \draw[arr] (d1) -- node[right,font=\tiny]{No} (d2);
-  \draw[arr] (d2) -- node[right,font=\tiny]{No} (d3);
-  \draw[arr] (d3) -- node[right,font=\tiny]{No} (d4);
+  %% ── Rule cascade (left branch) ────────────────────────────────
+  \node[decision, align=center, text width=2.0cm,
+        below left=0.75cm and 1.0cm of in] (d1)
+      {$c_{\text{YOLO}}$\\${\geq}\,0.60$?};
+  \node[decision, align=center, text width=2.0cm,
+        below=0.6cm of d1] (d2)
+      {$p_{\text{act}}$\\${\geq}\,0.75$?};
+  \node[decision, align=center, text width=2.2cm,
+        below=0.6cm of d2] (d3)
+      {$p_{\text{act}}{\geq}0.40$\\$\wedge\ s{>}0.049$?};
+  \node[decision, align=center, text width=2.0cm,
+        below=0.6cm of d3] (d4)
+      {$s$\\${>}\,0.052$?};
 
-  \node[alert,fill=red!30,   right=0.45cm of d1] (r1) {CRITICAL};
-  \node[alert,fill=orange!40,right=0.45cm of d2] (r2) {HIGH};
-  \node[alert,fill=yellow!50,right=0.45cm of d3] (r3) {MEDIUM};
-  \node[alert,fill=green!30, right=0.45cm of d4] (r4) {LOW};
-  \node[alert,fill=green!15, below=0.5cm of d4]  (r5) {LOW (default)};
+  \draw[arr] (in.south) -- ++(0,-0.2) -| (d1.north);
+  \draw[arr] (d1) -- node[right,font=\scriptsize]{No} (d2);
+  \draw[arr] (d2) -- node[right,font=\scriptsize]{No} (d3);
+  \draw[arr] (d3) -- node[right,font=\scriptsize]{No} (d4);
 
-  \draw[arr] (d1.east) -- node[above,font=\tiny]{Yes} (r1.west);
-  \draw[arr] (d2.east) -- node[above,font=\tiny]{Yes} (r2.west);
-  \draw[arr] (d3.east) -- node[above,font=\tiny]{Yes} (r3.west);
-  \draw[arr] (d4.east) -- node[above,font=\tiny]{Yes} (r4.west);
-  \draw[arr] (d4.south) -- node[right,font=\tiny]{No} (r5.north);
+  %% Alert outputs (right of decision diamonds)
+  \node[alert, fill=red!35,    right=0.65cm of d1] (r1) {CRITICAL};
+  \node[alert, fill=orange!45, right=0.65cm of d2] (r2) {HIGH};
+  \node[alert, fill=yellow!55, right=0.65cm of d3] (r3) {MEDIUM};
+  \node[alert, fill=green!35,  right=0.65cm of d4] (r4) {LOW};
+  \node[alert, fill=green!15,  below=0.55cm of d4] (r5) {LOW~(default)};
 
-  % MLP path
-  \node[mlpbox, fill=purple!15, below right=0.65cm and 0.6cm of in,
-        minimum width=3cm, minimum height=1.1cm]
-      (mlp) {MLP Head\\$3\to32\to16\to4$\\Softmax};
+  \draw[arr] (d1.east) -- node[above,font=\scriptsize]{Yes} (r1.west);
+  \draw[arr] (d2.east) -- node[above,font=\scriptsize]{Yes} (r2.west);
+  \draw[arr] (d3.east) -- node[above,font=\scriptsize]{Yes} (r3.west);
+  \draw[arr] (d4.east) -- node[above,font=\scriptsize]{Yes} (r4.west);
+  \draw[arr] (d4.south) -- node[right,font=\scriptsize]{No} (r5.north);
 
-  \draw[arr] (in.south) -- ++(0,-0.15) -| (mlp.north);
+  %% ── MLP path (right branch) ───────────────────────────────────
+  \node[mlpbox, fill=purple!15, align=center,
+        minimum width=2.8cm, minimum height=1.5cm,
+        below right=0.75cm and 1.0cm of in] (mlp)
+      {MLP Head\\[3pt]$3{\to}32{\to}16{\to}4$\\[2pt]Softmax};
 
-  % Ensemble
-  \node[proc, fill=teal!15, below=4.9cm of in, minimum width=5.5cm]
-      (ens) {Ensemble: $\ell^*=\min(\ell_\text{rule},\;\ell_\text{MLP})$};
+  \draw[arr] (in.south) -- ++(0,-0.2) -| (mlp.north);
 
-  \draw[arr] (r1.south) -- ++(0,-0.15) |- (ens.west);
-  \draw[arr] (r2.south) -- ++(0,-0.10) |- (ens.west);
-  \draw[arr] (r3.south) -- ++(0,-0.05) |- (ens.west);
-  \draw[arr] (r4.south)                |- (ens.west);
-  \draw[arr] (r5.south) -- ++(0,-0.15) |- (ens.west);
-  \draw[arr] (mlp.south) -- ++(0,-3.2) -| (ens.east);
+  %% ── Ensemble (anchored below r5) ──────────────────────────────
+  \node[proc, fill=teal!15, minimum width=6cm,
+        below=0.65cm of r5] (ens)
+      {Ensemble:\ $\ell^*=\min\!\left(\ell_{\text{rule}},\,\ell_{\text{MLP}}\right)$};
+
+  %% Alerts → ensemble (routed cleanly via a right-side bus to ens.north)
+  \draw (r1.east) -- ++(0.4,0) coordinate (bus);
+  \draw (r2.east) -- (r2.east -| bus);
+  \draw (r3.east) -- (r3.east -| bus);
+  \draw (r4.east) -- (r4.east -| bus);
+  
+  \path (ens.north) ++(1.5, 0.3) coordinate (drop_top);
+  \path (ens.north) ++(1.5, 0) coordinate (drop_bot);
+  \draw[arr] (bus) |- (drop_top) -- (drop_bot);
+  
+  \draw[arr] (r5.south) -- (ens.north -| r5);
+
+  %% MLP → ensemble (down then horizontally to ens.east, passing under the alerts safely)
+  \draw[arr] (mlp.south) |- (ens.east);
 
 \end{tikzpicture}}
 \caption{Fusion layer decision flow. The rule-based cascade (left) and MLP
-head (right) run in parallel; the ensemble escalates to the higher-severity
-output.}
+head (right) run in parallel; the ensemble selects the higher-severity output.}
 \label{fig:fusion}
 \end{figure}
 
@@ -438,8 +455,9 @@ totaling \textbf{600 sequences} for evaluation.
 
 \textbf{UCF-Crime~\cite{ucfcrime}} contains 1,900 surveillance videos across
 14 anomaly categories.
-We report on the \textbf{45-video subset} for which real VideoMAE predictions
-are available (13 action classes + Normal).
+We evaluate on \textbf{190 test videos} (140 anomaly across 13 classes +
+50 normal) from the official test split; 34 videos are excluded due to
+insufficient motion for background subtraction, yielding $n$=156 valid samples.
 
 \subsection{Evaluation Metrics}
 
@@ -481,30 +499,40 @@ Knife    & 0.739 & --- & --- & ---\\
 \end{table}
 
 \subsubsection{Action Recognition}
-Table~\ref{tab:mae} shows per-class VideoMAE performance on UCF-Crime.
-Robbery (F1=0.53) and Road Accidents (F1=0.51) achieve the highest scores;
-visually-subtle classes such as Shooting (F1=0.10) and Arrest (F1=0.11)
-remain challenging due to class imbalance (13--35 support each).
+Table~\ref{tab:mae} shows per-class action-anomaly detection performance
+on 156 UCF-Crime test videos (140 anomaly + 50 normal, 34 skipped due to
+insufficient motion).
+At the F1-optimal threshold ($\tau^*=0.0027$), the module achieves high
+sensitivity across all anomaly categories: 12 of 13 classes reach F1=1.000.
+Shooting is the hardest class (F1=0.973, one miss), consistent with its
+low visual-motion signature.
+The module flags all 41 normal test videos as anomalous (specificity=0),
+producing FPR=100\%; the cross-modal fusion layer corrects these false alarms.
 
 \begin{table}[h]
-\caption{VideoMAE Per-Class Performance on UCF-Crime (selected classes)}
+\caption{Action Module Per-Class Performance on UCF-Crime ($n$=156)}
 \label{tab:mae}
 \centering
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Class} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Support}\\
+\textbf{Class} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{n}\\
 \midrule
-Robbery        & 0.44 & 0.66 & \textbf{0.53} & 35\\
-Road Accidents & 0.44 & 0.61 & 0.51 & 23\\
-Normal Event   & 0.44 & 0.57 & 0.50 &  7\\
-Fighting       & 0.60 & 0.27 & 0.38 & 11\\
-Burglary       & 0.45 & 0.42 & 0.43 & 24\\
-Stealing       & 0.36 & 0.56 & 0.43 & 18\\
-Shooting       & 0.12 & 0.08 & 0.10 & 13\\
-Arrest         & 0.14 & 0.08 & 0.11 & 12\\
+Road Accidents & 1.000 & 1.000 & \textbf{1.000} & 22\\
+Shoplifting    & 1.000 & 1.000 & \textbf{1.000} & 18\\
+Explosion      & 1.000 & 1.000 & \textbf{1.000} & 18\\
+Robbery        & 1.000 & 1.000 & \textbf{1.000} &  4\\
+Fighting       & 1.000 & 1.000 & \textbf{1.000} &  5\\
+Burglary       & 1.000 & 1.000 & \textbf{1.000} &  8\\
+Stealing       & 1.000 & 1.000 & \textbf{1.000} &  5\\
+Arson          & 1.000 & 1.000 & \textbf{1.000} &  7\\
+Assault        & 1.000 & 1.000 & \textbf{1.000} &  2\\
+Vandalism      & 1.000 & 1.000 & \textbf{1.000} &  3\\
+Shooting       & 1.000 & 0.947 & \textbf{0.973} & 19\\
+Normal (FP)    & 0.000 & 0.000 & 0.000 & 41\\
 \midrule
-\textbf{Overall} & --- & --- & \textbf{0.40} & 200\\
+\textbf{Overall} & \textbf{0.736} & \textbf{0.991} & \textbf{0.845} & 156\\
 \bottomrule
+\multicolumn{5}{l}{\footnotesize Normal specificity=0\%; corrected by fusion.}
 \end{tabular}
 \end{table}
 
@@ -537,10 +565,10 @@ $\sigma$ ratio       & \multicolumn{2}{c}{2.2$\times$}\\
 
 Table~\ref{tab:ablation} evaluates seven system configurations on real data.
 The full MLP fusion is the only configuration achieving both
-precision $>0.99$ and FPR $<0.02$ simultaneously.
+precision $\geq 1.00$ and FPR\,=\,0 simultaneously.
 Gait-only achieves perfect recall but 100\% FPR, showing it cannot
-discriminate without cross-modal support; VideoMAE-only achieves zero FPR
-but misses 92.9\% of anomalies.
+discriminate without cross-modal support; the action module alone achieves
+high recall (0.991) but also 100\% FPR on normal videos.
 
 \begin{table}[h]
 \caption{Ablation Study on Real Data (Seven System Configurations)}
@@ -553,13 +581,13 @@ but misses 92.9\% of anomalies.
     & \textbf{FPR} & \textbf{FPS}\\
 \midrule
 YOLO-Only             & 0.971 & 0.810 & 0.883 & 0.333 & 35.0\\
-VideoMAE-Only         & 1.000 & 0.071 & 0.133 & 0.000 &  8.0\\
+VideoMAE-Only         & 0.736 & 0.991 & 0.845 & 1.000 &  8.0\\
 Gait-Only             & 0.444 & 1.000 & 0.615 & 1.000 & 12.0\\
 YOLO + VideoMAE       & 0.971 & 0.810 & 0.883 & 0.333 & 15.0\\
 YOLO + Gait           & 0.933 & 1.000 & 0.966 & 1.000 & 18.0\\
 Full System (Rule)    & 0.971 & 0.810 & 0.883 & 0.333 & 20.0\\
-\textbf{Full (MLP)}   & \textbf{0.998} & \textbf{0.895}
-    & \textbf{0.943} & \textbf{0.018} & 19.5\\
+\textbf{Full (MLP)}   & \textbf{1.000} & \textbf{0.825}
+    & \textbf{0.904} & \textbf{0.000} & 19.5\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -568,8 +596,8 @@ Full System (Rule)    & 0.971 & 0.810 & 0.883 & 0.333 & 20.0\\
 
 Table~\ref{tab:fp} shows FP rate and reduction relative to the YOLO-only
 baseline.
-The MLP fusion achieves a 95.8\% FP reduction, lowering the false-alarm rate
-from 43.9\% (YOLO without persistence, baseline) to 1.8\%.
+The MLP fusion achieves a 100\% FP reduction, lowering the false-alarm rate
+from 43.9\% (YOLO without persistence, baseline) to 0.0\%.
 
 \begin{table}[h]
 \caption{False Positive Rate and Reduction vs.\ YOLO Baseline}
@@ -582,7 +610,7 @@ from 43.9\% (YOLO without persistence, baseline) to 1.8\%.
 YOLO-Only (no persistence) & 43.9\% & --- (baseline)\\
 YOLO-Only (persistence)    & 33.3\% & 24.1\%\\
 Full System (Rule)         & 33.3\% & 24.1\%\\
-\textbf{Full System (MLP)} & \textbf{1.8\%} & \textbf{95.8\%}\\
+\textbf{Full System (MLP)} & \textbf{0.0\%} & \textbf{100\%}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -608,7 +636,7 @@ single-modality approach while maintaining competitive detection accuracy.
 Shaik \& Basha~\cite{shaik2025}       & Object           & mAP=0.90  & n/r\\
 Kim et al.~\cite{kim2024}             & Action           & F1=0.93   & 21\%\\
 Srilakshmi et al.~\cite{srilakshmi2025} & Multi          & ---       & 15\%\\
-\textbf{Gait-YOLO (ours)} & \textbf{Obj+Act+Gait} & \textbf{F1=0.943} & \textbf{95.8\%}\\
+\textbf{Gait-YOLO (ours)} & \textbf{Obj+Act+Gait} & \textbf{F1=0.904} & \textbf{100\%}\\
 \bottomrule
 \multicolumn{4}{l}{\footnotesize n/r = not reported.}
 \end{tabular}
@@ -708,8 +736,8 @@ the subsampled every-4th-frame schedule.
 \textbf{Multimodal synergy.}
 The ablation confirms that no single-modality configuration achieves both
 high precision and low FPR simultaneously (Table~\ref{tab:ablation}).
-VideoMAE-only reaches FPR=0 but recalls only 7.1\% of anomalies;
-Gait-only recalls everything but with 100\% FPR.
+VideoMAE-only achieves high recall (99.1\%) but with 100\% FPR on normal videos;
+Gait-only also recalls everything but with 100\% FPR.
 Only the MLP fusion balances these extremes, validating that cross-modal
 validation is the essential mechanism.
 
@@ -724,8 +752,11 @@ decisions; without it, the Medium and Low alert branches are effectively
 dead code.
 
 \textbf{Limitations.}
-The VideoMAE module achieves 0.40 overall accuracy on UCF-Crime, limited by
-class imbalance for rare categories (Shooting, Arrest).
+The action module achieves F1=0.845 on UCF-Crime ($n$=156) but zero
+specificity at the F1-optimal threshold: all 41 normal test videos are
+classified as anomalous, yielding FPR=100\% in isolation.
+The fusion layer fully compensates for this, but the branch itself would
+benefit from a dedicated normal-vs-anomaly training regime on UCF-Crime.
 The near-identical gait score means ($\Delta\mu=0.0002$) suggest the
 checkpoint would benefit from fine-tuning on labeled abnormal examples.
 Deployment currently requires a server-grade GPU; INT8 quantization with
@@ -737,9 +768,9 @@ TensorRT is planned for edge devices (NVIDIA Jetson Orin/Xavier).
 We presented Gait-YOLO, a real-time multimodal anomaly detection system
 that fuses object detection, action recognition, and gait analysis through
 a hierarchical rule cascade augmented by a learned MLP head.
-Evaluated on three real-world datasets, the system achieves fusion F1=0.943
-with precision 0.998 and reduces the false-positive rate from 43.9\% to
-1.8\% (95.8\% reduction) versus YOLO-only operation, while running at
+Evaluated on three real-world datasets, the system achieves fusion F1=0.904
+with precision 1.000 and reduces the false-positive rate from 43.9\% to
+0.0\% (100\% reduction) versus YOLO-only operation, while running at
 18--22\,FPS on a single NVIDIA T4 GPU.
 
 The data-calibrated gait threshold optimization ($\tau^*=0.0491$) is a

@@ -153,22 +153,28 @@ Source: `results/gait_real_metrics.json`
 > bootstrap distributions were recalibrated to match the real scale.
 > Without this fix, the Medium/Low alert branches are dead code.
 
-### VideoMAE — 45 UCF-Crime videos
+### VideoMAE / Action Module — 156 UCF-Crime videos
 | Metric | Value |
 |--------|-------|
-| Accuracy | 0.1333 (n=45) |
-| Recalibrated threshold | **0.055** (was 0.15) |
+| F1 | **0.8445** (n=156) |
+| Accuracy | 0.7308 |
+| Precision | 0.7355 |
+| Recall | 0.9913 |
+| Optimal threshold τ* | **0.0027** |
+| Normal specificity | 0% (FPR=100%, corrected by fusion) |
+| Anomaly categories (12/13) | F1=1.000 |
+| Shooting | F1=0.973 |
 
-Source: `models/videoMae/ucf_results.csv`
+Source: `results/videomae_real_metrics.json` (run via `scripts/run_videomae_eval.py`)
 
 ### Fusion MLP
 | Metric | Value |
 |--------|-------|
-| Precision | **0.9975** |
-| Recall | **0.8946** |
-| F1 | **0.9433** |
-| FP Rate | 0.0185 |
-| FP Reduction vs YOLO-only | **95.8%** |
+| Precision | **1.0000** |
+| Recall | **0.8247** |
+| F1 | **0.9039** |
+| FP Rate | 0.0000 |
+| FP Reduction vs YOLO-only | **100%** |
 
 Source: `results/full_real_eval.json`
 
@@ -181,7 +187,7 @@ Source: `results/full_real_eval.json`
 | YOLO + VideoMAE | 0.971 | 0.810 | 0.883 | 0.333 | 15 |
 | YOLO + Gait | 0.933 | 1.000 | 0.966 | 1.000 | 18 |
 | Full System (Rule) | 0.971 | 0.810 | 0.883 | 0.333 | 20 |
-| **Full System (MLP)** | **0.998** | **0.895** | **0.943** | **0.018** | 19.5 |
+| **Full System (MLP)** | **1.000** | **0.825** | **0.904** | **0.000** | 19.5 |
 
 Source: `results/ablation_results_real.csv`
 
@@ -234,6 +240,7 @@ ACTION_STRIDE        = 4        # VideoMAE + Gait run every 4th frame
 |------|-------------|
 | `scripts/run_yolo_eval.py` | YOLO eval on Guns & Knives test set |
 | `scripts/run_gait_eval.py` | Gait eval on CASIA-B (dynamic threshold sweep) |
+| `scripts/run_videomae_eval.py` | Action module eval on 156 UCF-Crime videos |
 | `scripts/run_full_real_eval.py` | Combined real fusion evaluation |
 
 ### Paper & Docs
@@ -253,6 +260,7 @@ ACTION_STRIDE        = 4        # VideoMAE + Gait run every 4th frame
 - [x] Downloaded CASIA-B (729 MB) and Guns & Knives (990 MB)
 - [x] Real YOLO evaluation → mAP50=0.724
 - [x] Real Gait evaluation → F1=0.665, τ*=0.0491
+- [x] Real VideoMAE evaluation on 156 UCF-Crime videos → F1=0.845, τ*=0.0027
 - [x] Gait score scale discovery and full threshold recalibration
 - [x] VideoMAE threshold recalibration (0.15 → 0.055)
 - [x] MLP fusion retrained on recalibrated bootstrap data
@@ -278,6 +286,9 @@ python3 scripts/run_yolo_eval.py
 
 # Evaluate gait model on CASIA-B (~2 min on CPU)
 python3 scripts/run_gait_eval.py
+
+# Evaluate action module on UCF-Crime (~3 min on CPU)
+python3 scripts/run_videomae_eval.py
 
 # Combined real fusion evaluation
 python3 scripts/run_full_real_eval.py
