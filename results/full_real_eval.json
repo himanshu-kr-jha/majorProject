@@ -4,15 +4,16 @@
   "yolo_recall": 0.7566,
   "yolo_f1": 0.7771,
   "yolo_n_images": 324,
-  "videomae_accuracy": 0.1333,
-  "videomae_n": 45,
+  "videomae_accuracy": 0.6795,
+  "videomae_f1": 0.8445,
+  "videomae_n": 156,
   "gait_f1": 0.6652,
   "gait_threshold": 0.0491,
   "gait_nm_mean": 0.0511,
   "gait_nm_std": 0.0006,
-  "fusion_precision": 0.9975,
-  "fusion_recall": 0.8946,
-  "fusion_f1": 0.9433,
-  "fusion_fp_rate": 0.0185,
-  "fp_reduction_pct": 95.8
+  "fusion_precision": 1.0,
+  "fusion_recall": 0.8247,
+  "fusion_f1": 0.9039,
+  "fusion_fp_rate": 0.0,
+  "fp_reduction_pct": 100.0
 }
