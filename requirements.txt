@@ -1,0 +1,28 @@
+# Gait-YOLO project dependencies
+# PyTorch is installed separately in setup.sh / setup.bat (CUDA-version-aware)
+# After setup.sh installs PyTorch, run: pip install -r requirements.txt
+
+# Object detection
+ultralytics>=8.2.0
+
+# HuggingFace VideoMAE
+transformers>=4.40.0
+accelerate>=0.29.0
+safetensors>=0.4.3
+
+# Vision / video
+opencv-python-headless>=4.9.0.80
+Pillow>=10.3.0
+
+# Numerics
+numpy>=1.26.0
+scipy>=1.13.0
+
+# Data / logging
+pandas>=2.2.0
+matplotlib>=3.8.0
+tqdm>=4.66.0
+
+# Notebook support (optional — needed for .ipynb files)
+ipykernel>=6.29.0
+ipywidgets>=8.1.0
