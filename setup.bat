@@ -81,14 +81,35 @@ echo [ OK ]  Python %PY_VER%
 :: Check GPU
 set GPU_AVAILABLE=0
 set CUDA_VER=0
-where nvidia-smi >nul 2>&1
-if not errorlevel 1 (
-  for /f "tokens=*" %%G in ('nvidia-smi --query-gpu^=name --format^=csv^,noheader 2^>nul') do set GPU_NAME=%%G
-  for /f "tokens=3" %%C in ('nvidia-smi 2^>nul ^| findstr /C:"CUDA Version"') do set CUDA_VER=%%C
-  echo [ OK ]  GPU: !GPU_NAME!  (CUDA !CUDA_VER!)
-  set GPU_AVAILABLE=1
+
+:: Try direct path first (most reliable)
+set NVSMI_PATH="C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"
+
+if exist %NVSMI_PATH% (
+    echo [INFO]  Using NVIDIA-SMI from default path
+
+    for /f "tokens=*" %%G in ('%NVSMI_PATH% --query-gpu^=name --format^=csv^,noheader 2^>nul') do set GPU_NAME=%%G
+    for /f "tokens=3" %%C in ('%NVSMI_PATH% 2^>nul ^| findstr /C:"CUDA Version"') do set CUDA_VER=%%C
+
+    echo [ OK ]  GPU: !GPU_NAME!  (CUDA !CUDA_VER!)
+    set GPU_AVAILABLE=1
+
 ) else (
-  echo [WARN]  nvidia-smi not found — CPU-only PyTorch will be installed
+
+    :: fallback to PATH
+    where nvidia-smi >nul 2>&1
+    if not errorlevel 1 (
+        echo [INFO]  Using NVIDIA-SMI from PATH
+
+        for /f "tokens=*" %%G in ('nvidia-smi --query-gpu^=name --format^=csv^,noheader 2^>nul') do set GPU_NAME=%%G
+        for /f "tokens=3" %%C in ('nvidia-smi 2^>nul ^| findstr /C:"CUDA Version"') do set CUDA_VER=%%C
+
+        echo [ OK ]  GPU: !GPU_NAME!  (CUDA !CUDA_VER!)
+        set GPU_AVAILABLE=1
+
+    ) else (
+        echo [WARN]  nvidia-smi not found — CPU-only PyTorch will be installed
+    )
 )
 
 echo.>> %LOG% 2>&1

@@ -1,0 +1,886 @@
+$ python scripts/train_yolo.py
+Device:  GPU
+Batch:   16
+Workers: 8
+Data:    C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\data.yaml
+Base:    yolov8s.pt
+
+Ultralytics 8.4.40  Python-3.10.11 torch-2.5.1+cu121 CUDA:0 (NVIDIA GeForce RTX 3050 6GB Laptop GPU, 6144MiB)
+engine\trainer: agnostic_nms=False, amp=True, angle=1.0, augment=False, auto_augment=randaugment, batch=16, bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, cls_pw=0.0, compile=False, conf=None, copy_paste=0.1, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\data.yaml, degrees=10.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, end2end=None, epochs=100, erasing=0.4, exist_ok=True, fliplr=0.5, flipud=0.1, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.001, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.15, mode=train, model=yolov8s.pt, momentum=0.937, mosaic=1.0, multi_scale=0.0, name=yolo_train_results, nbs=64, nms=False, opset=None, optimize=False, optimizer=AdamW, overlap_mask=True, patience=20, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results, rect=False, resume=False, retina_masks=False, rle=1.0, save=True, save_conf=False, save_crop=False, save_dir=C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results, save_frames=False, save_json=False, save_period=10, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
+Overriding model.yaml nc=80 with nc=2
+
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       928  ultralytics.nn.modules.conv.Conv             [3, 32, 3, 2]                 
+  1                  -1  1     18560  ultralytics.nn.modules.conv.Conv             [32, 64, 3, 2]                
+  2                  -1  1     29056  ultralytics.nn.modules.block.C2f             [64, 64, 1, True]             
+  3                  -1  1     73984  ultralytics.nn.modules.conv.Conv             [64, 128, 3, 2]               
+  4                  -1  2    197632  ultralytics.nn.modules.block.C2f             [128, 128, 2, True]           
+  5                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  6                  -1  2    788480  ultralytics.nn.modules.block.C2f             [256, 256, 2, True]           
+  7                  -1  1   1180672  ultralytics.nn.modules.conv.Conv             [256, 512, 3, 2]              
+  8                  -1  1   1838080  ultralytics.nn.modules.block.C2f             [512, 512, 1, True]           
+  9                  -1  1    656896  ultralytics.nn.modules.block.SPPF            [512, 512, 5]                 
+ 10                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 11             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 12                  -1  1    591360  ultralytics.nn.modules.block.C2f             [768, 256, 1]                 
+ 13                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 14             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 15                  -1  1    148224  ultralytics.nn.modules.block.C2f             [384, 128, 1]                 
+ 16                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 17            [-1, 12]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 18                  -1  1    493056  ultralytics.nn.modules.block.C2f             [384, 256, 1]                 
+ 19                  -1  1    590336  ultralytics.nn.modules.conv.Conv             [256, 256, 3, 2]              
+ 20             [-1, 9]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 21                  -1  1   1969152  ultralytics.nn.modules.block.C2f             [768, 512, 1]                 
+ 22        [15, 18, 21]  1   2116822  ultralytics.nn.modules.head.Detect           [2, 16, None, [128, 256, 512]]
+Model summary: 130 layers, 11,136,374 parameters, 11,136,358 gradients, 28.6 GFLOPs
+
+Transferred 349/355 items from pretrained weights
+Freezing layer 'model.22.dfl.conv.weight'
+AMP: running Automatic Mixed Precision (AMP) checks...
+Downloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo26n.pt to 'yolo26n.pt': 100% ━━━━━━━━━━━━ 5.3MB 10.4MB/s 0.5s
+AMP: checks passed 
+train: Fast image access  (ping: 0.20.0 ms, read: 11.013.2 MB/s, size: 158.2 KB)
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 35 images, 22 backgrounds, 0 corrup
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 76 images, 37 backgrounds, 0 corrup
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 88 images, 37 backgrounds, 0 corrup
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 118 images, 37 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 149 images, 37 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 192 images, 37 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 220 images, 37 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 265 images, 38 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 299 images, 38 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 327 images, 39 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 356 images, 39 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 378 images, 40 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 415 images, 41 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 429 images, 41 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 464 images, 44 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 514 images, 53 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 554 images, 55 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 569 images, 63 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 632 images, 94 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 701 images, 97 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 707 images, 97 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 754 images, 97 backgrounds, 0 corru
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 797 images, 109 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 826 images, 123 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 854 images, 123 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 891 images, 123 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 915 images, 123 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 949 images, 123 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 969 images, 123 backgrounds, 0 corr
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1004 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1037 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1058 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1096 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1123 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1151 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1175 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1192 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1229 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1244 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1273 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1311 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1331 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1369 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1404 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1431 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1450 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1481 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1518 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1546 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1566 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1593 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1635 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1648 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1670 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1692 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1732 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1761 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1789 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1819 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1851 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1864 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1888 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1926 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1956 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 1986 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2009 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2039 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2083 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2113 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2152 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2179 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2190 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2212 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2233 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2244 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2259 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2276 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2290 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2310 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2322 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2341 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2358 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2370 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2377 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2395 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2417 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2435 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2453 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2471 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2492 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2510 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2530 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2542 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2552 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2565 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2584 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2602 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2621 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2635 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2653 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2674 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2687 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2705 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2718 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2734 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2746 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2771 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2790 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2814 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2831 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2854 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2870 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2892 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2910 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2924 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2931 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2938 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2955 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2974 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 2988 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3008 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3026 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3044 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3063 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3085 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3105 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3122 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3130 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3145 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3155 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3182 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3231 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3276 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3304 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3333 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3392 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3440 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3489 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3544 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3567 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3588 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3649 images, 123 backgrounds, 0 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3672 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3698 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3769 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3770 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3792 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3824 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3855 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3886 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3914 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3933 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 3963 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4001 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4046 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4082 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4108 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4138 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4187 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4216 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4220 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4268 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4306 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4350 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4387 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4410 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4445 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4451 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4474 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4490 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4520 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4549 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4586 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4612 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4649 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4671 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4687 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4717 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4725 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4760 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4799 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4817 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4858 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4886 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4920 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4935 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4968 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 4993 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5043 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5050 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5088 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5118 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5162 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5181 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5213 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5233 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5251 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5292 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5328 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5330 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5356 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5396 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5423 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5445 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5473 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5496 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5507 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5518 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5532 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5546 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5557 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5567 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5584 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5613 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5645 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5661 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5689 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5715 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5745 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5775 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5794 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5809 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5865 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5891 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5920 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5939 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5952 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5961 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5983 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 5999 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6014 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6024 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6034 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6048 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6061 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6076 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6097 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6109 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6129 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6145 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6159 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6177 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6193 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6204 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6254 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6294 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6314 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6340 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6371 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6394 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6418 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6455 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6480 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6508 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6525 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6535 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6566 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6593 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6627 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6658 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6672 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6709 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6736 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6781 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6783 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6820 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6869 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6891 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6920 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6958 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 6992 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7012 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7036 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7059 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7093 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7109 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7144 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7174 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7222 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7245 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7291 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7295 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7351 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7381 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7408 images, 123 backgrounds, 1 cor
+train: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels... 7417 images, 123 backgrounds, 1 corrupt: 100% ━━━━━━━━━━━━ 7417/7417 204.3it/s 36.3s
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (1125).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (1217).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (1221).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (1224).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (1717).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (1759).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2140).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2815).jpg: ignoring corrupt image/label: non-normalized or out of bounds coordinates [2.872587 1.618557]
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2843).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2902).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2903).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2907).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2910).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2911).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2919).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (2920).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (55).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (583).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\armas (612).jpg: corrupt JPEG restored and saved
+train: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\images\knife_71.jpg: corrupt JPEG restored and saved
+train: New cache created: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\train\labels.cache
+val: Fast image access  (ping: 0.30.1 ms, read: 3.80.9 MB/s, size: 40.8 KB)
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 8 images, 2 backgrounds, 0 corrupt: 2% 
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 11 images, 2 backgrounds, 0 corrupt: 3%
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 67 images, 5 backgrounds, 0 corrupt: 21
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 118 images, 17 backgrounds, 0 corrupt: 
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 138 images, 17 backgrounds, 0 corrupt: 
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 180 images, 17 backgrounds, 0 corrupt: 
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 264 images, 17 backgrounds, 0 corrupt: 
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 271 images, 17 backgrounds, 0 corrupt: 
+val: Scanning C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels... 324 images, 17 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 324/324 145.6it/s 2.2s
+val: New cache created: C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\datasets\guns-knives\combined_gunsnknifes\val\labels.cache
+optimizer: AdamW(lr=0.001, momentum=0.937) with parameter groups 57 weight(decay=0.0), 64 weight(decay=0.0005), 63 bias(decay=0.0)
+Plotting labels to C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results\labels.jpg... 
+Image sizes 640 train, 640 val
+Using 8 dataloader workers
+Logging results to C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results
+Starting training for 100 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      1/100      3.72G      1.645      2.146      1.836         25        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:41
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.4it/s 3.2s
+                   all        324        339      0.177      0.166       0.11     0.0405
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      2/100      3.37G      1.631      1.974       1.83         23        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 2.1it/s 5.1s
+                   all        324        339       0.42      0.275      0.253     0.0949
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      3/100       3.4G      1.602      1.922      1.803         21        640: 100% ━━━━━━━━━━━━ 464/464 2.6it/s 2:56
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.431      0.353      0.304      0.115
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      4/100      3.39G      1.539      1.814      1.757         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.357      0.379      0.301      0.104
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      5/100       3.4G      1.491      1.719      1.711         21        640: 100% ━━━━━━━━━━━━ 464/464 2.7it/s 2:49
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.5it/s 3.1s
+                   all        324        339      0.495      0.371      0.383      0.165
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      6/100       3.4G       1.46      1.636      1.675         18        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:49
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.5it/s 3.1s
+                   all        324        339       0.52      0.411      0.434      0.183
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      7/100       3.4G      1.449      1.587      1.659         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:48
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.5it/s 3.1s
+                   all        324        339       0.58      0.474      0.494      0.208
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      8/100      3.39G      1.421      1.538      1.632         32        640: 100% ━━━━━━━━━━━━ 464/464 2.7it/s 2:49
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.5it/s 3.1s
+                   all        324        339      0.522      0.501      0.486      0.209
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      9/100      3.39G      1.389      1.471      1.611         23        640: 100% ━━━━━━━━━━━━ 464/464 2.7it/s 2:49
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.648      0.481      0.531       0.21
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     10/100      3.39G      1.361      1.423      1.592         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.616      0.477      0.544      0.235
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     11/100      3.38G      1.367      1.403       1.58         27        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.4it/s 3.2s
+                   all        324        339      0.689      0.527      0.559      0.247
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     12/100      3.39G      1.346      1.375       1.58         27        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.697      0.494       0.57      0.248
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     13/100      3.39G      1.327      1.345      1.548         19        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.4it/s 3.2s
+                   all        324        339      0.636      0.581      0.625      0.284
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     14/100      3.39G      1.314      1.315      1.541         16        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:48
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.1s
+                   all        324        339      0.635       0.52      0.596      0.264
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     15/100      3.38G       1.31      1.286      1.534         14        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.701      0.594      0.643      0.289
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     16/100      3.42G      1.291      1.273      1.524         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.703       0.58      0.631      0.289
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     17/100      3.39G        1.3      1.269      1.517         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.593      0.557       0.58      0.272
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     18/100      3.39G      1.277      1.233      1.502         16        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.678      0.531        0.6      0.273
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     19/100       3.4G       1.27      1.226      1.497         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.675      0.603      0.634      0.319
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     20/100      3.39G      1.259      1.204      1.492         24        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.727      0.617      0.678      0.338
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     21/100       3.4G      1.248      1.184       1.47         17        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.696      0.612      0.683      0.336
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     22/100      3.39G      1.248      1.183      1.482         18        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.786      0.587      0.708       0.36
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     23/100      3.38G      1.236      1.165       1.47         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.697      0.619      0.671      0.316
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     24/100       3.4G      1.228       1.14      1.459         21        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.655       0.64      0.687      0.339
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     25/100      3.38G       1.22      1.129      1.456         26        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.761      0.648      0.701      0.344
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     26/100      3.38G       1.22      1.123      1.458         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.758      0.656      0.707       0.35
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     27/100      3.39G      1.213      1.115      1.451         22        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.679      0.624      0.669      0.338
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     28/100       3.4G      1.192      1.083      1.429         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.776       0.66      0.707      0.341
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     29/100      3.39G      1.199      1.091      1.433         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.683      0.659      0.701      0.359
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     30/100       3.4G      1.186      1.077      1.427         16        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.756      0.689      0.756       0.37
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     31/100      3.39G      1.175      1.048      1.415         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.824      0.661      0.728       0.36
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     32/100      3.39G      1.173      1.045      1.414         18        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.761      0.672      0.744      0.361
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     33/100      3.39G       1.18      1.051       1.42         18        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.753      0.671      0.726       0.36
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     34/100      3.38G      1.164      1.031      1.407         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.827      0.658      0.761      0.376
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     35/100      3.39G      1.156      1.017      1.394         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.748      0.702      0.741      0.372
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     36/100      3.38G      1.162      1.004      1.397         30        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.5it/s 3.1s
+                   all        324        339      0.813      0.653      0.734      0.389
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     37/100      3.39G      1.152      1.005      1.391         17        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.799      0.728      0.796      0.414
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     38/100      3.38G      1.153      1.002        1.4         25        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.781      0.736      0.784        0.4
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     39/100      3.39G      1.141     0.9985      1.387         15        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.796      0.638      0.729       0.38
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     40/100      3.39G      1.131     0.9872      1.381         14        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339       0.79      0.721      0.789      0.404
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     41/100      3.39G      1.128     0.9571      1.378         21        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.822      0.716      0.785      0.403
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     42/100      3.39G      1.124     0.9613      1.372         33        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.819      0.708      0.776       0.41
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     43/100      3.39G      1.118     0.9464      1.366         22        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.792      0.714      0.756      0.402
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     44/100      3.38G      1.112     0.9511      1.368         29        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:42
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.822      0.687      0.771      0.404
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     45/100      3.39G      1.118     0.9476      1.363         27        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.794      0.702      0.773      0.404
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     46/100      3.39G      1.124     0.9567       1.37         21        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.773      0.748      0.789      0.418
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     47/100      3.39G      1.103     0.9357      1.354         13        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.832      0.683      0.786      0.428
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     48/100      3.39G        1.1     0.9212      1.351         29        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.833      0.668      0.778      0.432
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     49/100       3.4G      1.093     0.9088       1.35         17        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.866       0.72      0.803      0.408
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     50/100      3.39G      1.097     0.9089      1.342         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.813      0.718      0.786      0.418
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     51/100      3.39G      1.084     0.8995       1.34         19        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.839      0.716      0.802      0.414
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     52/100       3.4G      1.081     0.8983      1.338         24        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.773       0.74      0.789      0.429
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     53/100      3.39G      1.079     0.8798      1.334         27        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.804      0.737      0.786      0.428
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     54/100       3.4G      1.077     0.8879      1.332         19        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.816       0.71      0.789      0.434
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     55/100      3.39G      1.073     0.8781      1.323         16        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.842      0.726      0.809      0.435
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     56/100      3.39G      1.074     0.8836      1.327         22        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.812      0.722      0.798      0.429
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     57/100      3.39G      1.057     0.8715      1.317         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.821      0.728      0.793      0.441
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     58/100       3.4G      1.058     0.8662      1.321         22        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339       0.81      0.738      0.797      0.435
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     59/100      3.39G      1.061     0.8612      1.323         17        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.822      0.733      0.814       0.45
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     60/100      3.38G      1.054     0.8504      1.313         19        640: 100% ━━━━━━━━━━━━ 464/464 2.9it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.829      0.731      0.815      0.448
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     61/100      3.39G      1.055     0.8516      1.311         17        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.825      0.741      0.818      0.448
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     62/100      3.39G      1.051     0.8464      1.313         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.865      0.735      0.822      0.453
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     63/100      3.37G      1.032     0.8283      1.301         21        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 2.9s
+                   all        324        339      0.786      0.758      0.806      0.443
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     64/100       3.4G      1.041     0.8246      1.303         26        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.842      0.736      0.816       0.44
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     65/100      3.39G      1.024     0.8035      1.292         16        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.818       0.74      0.805      0.439
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     66/100      3.39G      1.025     0.8266      1.297         17        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.843      0.753      0.813      0.435
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     67/100      3.39G      1.025      0.816      1.294         28        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:48
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.1s
+                   all        324        339      0.858      0.758      0.823      0.451
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     68/100      3.39G       1.02     0.8125      1.296         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.846      0.766      0.821      0.458
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     69/100      3.42G      1.008     0.7961      1.282         15        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.868      0.755      0.836      0.458
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     70/100      3.39G      1.005     0.7997      1.279         19        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.883      0.757      0.841      0.467
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     71/100      3.42G      1.001      0.793      1.275         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.897      0.737      0.841      0.469
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     72/100      3.39G      1.001     0.7911      1.279         14        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339       0.82      0.782      0.838      0.461
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     73/100       3.4G      1.002     0.7902      1.278         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.881      0.748      0.839       0.46
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     74/100      3.39G      1.002     0.7828      1.276         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.845      0.738      0.833      0.464
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     75/100      3.39G     0.9996     0.7785      1.274         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339       0.78      0.771       0.82      0.468
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     76/100      3.44G     0.9974     0.7796      1.272         27        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.827      0.756      0.827      0.465
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     77/100       3.4G      0.993     0.7731      1.263         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.852      0.755      0.835      0.466
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     78/100      3.38G     0.9764     0.7537      1.259         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.851      0.746      0.821      0.464
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     79/100      3.38G     0.9775     0.7497      1.263         16        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.852      0.757      0.825      0.465
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     80/100      3.38G     0.9876     0.7695      1.263         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.853      0.765      0.827      0.461
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     81/100      3.39G     0.9746     0.7599       1.26         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.845      0.757      0.826      0.467
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     82/100       3.4G      0.978     0.7491      1.259         18        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.862      0.754      0.828      0.468
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     83/100       3.4G     0.9634     0.7436       1.25         29        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.801      0.805      0.845      0.477
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     84/100       3.4G     0.9676     0.7451       1.25         25        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.815      0.814      0.845       0.48
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     85/100      3.39G     0.9658     0.7391      1.246         23        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.853      0.785      0.854      0.483
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     86/100       3.4G     0.9551     0.7291      1.243         14        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:43
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.8it/s 2.9s
+                   all        324        339      0.853      0.783      0.856      0.482
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     87/100      3.39G     0.9486     0.7219      1.238         21        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:44
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.886      0.763      0.858      0.484
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     88/100      3.38G     0.9576     0.7373      1.244         20        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.877      0.744      0.856      0.488
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     89/100      3.39G     0.9435     0.7211      1.236         18        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.1s
+                   all        324        339      0.862      0.774      0.853      0.482
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     90/100      3.41G     0.9337     0.7104       1.23         20        640: 100% ━━━━━━━━━━━━ 464/464 2.7it/s 2:50
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.862      0.779      0.856      0.488
+Closing dataloader mosaic
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     91/100      3.39G     0.8505     0.4863       1.15          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:48
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.885      0.758      0.854      0.483
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     92/100      3.39G     0.8428     0.4601      1.149          9        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.862      0.765      0.853      0.487
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     93/100      3.38G     0.8376     0.4515      1.144          9        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.861      0.751       0.85      0.484
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     94/100      3.39G     0.8265     0.4455      1.134          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.865      0.759      0.851      0.488
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     95/100       3.4G      0.824     0.4393      1.123         10        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.855      0.772      0.853      0.487
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     96/100      3.38G     0.8147     0.4393      1.125          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.869      0.772      0.852       0.49
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     97/100      3.39G     0.8094     0.4362      1.122          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:45
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.0s
+                   all        324        339      0.867      0.777      0.854      0.489
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     98/100       3.4G     0.8083     0.4319      1.121          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:46
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.859      0.798      0.855       0.49
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     99/100       3.4G     0.8061     0.4274      1.116          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:48
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.6it/s 3.1s
+                   all        324        339      0.874      0.794      0.854      0.489
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+    100/100      3.39G     0.7984     0.4266      1.115          8        640: 100% ━━━━━━━━━━━━ 464/464 2.8it/s 2:47
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.7it/s 3.0s
+                   all        324        339      0.881      0.796      0.856      0.489
+
+100 epochs completed in 4.684 hours.
+Optimizer stripped from C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results\weights\last.pt, 22.5MB
+Optimizer stripped from C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results\weights\best.pt, 22.5MB
+
+Validating C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results\weights\best.pt...
+Ultralytics 8.4.40  Python-3.10.11 torch-2.5.1+cu121 CUDA:0 (NVIDIA GeForce RTX 3050 6GB Laptop GPU, 6144MiB)
+Model summary (fused): 73 layers, 11,126,358 parameters, 0 gradients, 28.4 GFLOPs
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 11/11 3.4it/s 3.2s
+                   all        324        339      0.869      0.772      0.852       0.49
+                pistol        190        222      0.861      0.698       0.79       0.42
+                 knife        117        117      0.876      0.846      0.913       0.56
+Speed: 0.3ms preprocess, 6.5ms inference, 0.0ms loss, 0.9ms postprocess per image
+Results saved to C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\results\yolo_train_results
+
+Best checkpoint → C:\Users\SUDHANSHU KUMAR JHA\Documents\majorProject\models\knifes&pistol\best_v2.pt
+Next: update model path in scripts/run_yolo_eval.py to 'best_v2.pt', then run eval.
+Expected improvement: mAP50 ≥ 0.78  (baseline 0.724 with yolov8n)

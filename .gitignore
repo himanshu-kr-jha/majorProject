@@ -1,2 +1,6 @@
 datasets
 models
+logs
+venv
+yolo26n.pt
+yolo8s.pt

@@ -38,7 +38,7 @@ def get_env():
         gpu = False
     return {
         "device":  0 if gpu else "cpu",
-        "batch":   "auto" if gpu else 4,
+        "batch": 16 if gpu else 4,
         "workers": 8 if gpu else 2,
         "gpu":     gpu,
     }
