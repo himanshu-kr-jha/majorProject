@@ -34,6 +34,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 ROOT     = Path(__file__).resolve().parent.parent
 GAIT_DIR = ROOT / "models" / "casib-b"
@@ -119,12 +120,12 @@ def build_split_index(data_dir: Path, conditions: set, seq_len: int, step: int =
 # ── Mean reconstruction error ────────────────────────────────────────────────
 
 @torch.no_grad()
-def mean_recon_error(model, seq_list, max_seqs=400):
+def mean_recon_error(model, seq_list, label="gap", max_seqs=400):
     sample = seq_list[:max_seqs]
     ds     = GaitSequenceDataset(sample, SEQ_LEN, IMG_SIZE)
     loader = DataLoader(ds, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
     errs   = []
-    for clips in loader:
+    for clips in tqdm(loader, desc=f"  {label}", leave=False, unit="batch"):
         clips = clips.to(DEVICE)
         recon = model(clips)
         for b in range(clips.size(0)):
@@ -172,13 +173,17 @@ def train(args):
 
     print(f"\nStarting training — max {args.epochs} epochs, patience={args.patience}\n")
 
-    for epoch in range(1, args.epochs + 1):
+    epoch_bar = tqdm(range(1, args.epochs + 1), desc="Epochs", unit="ep")
+
+    for epoch in epoch_bar:
         t0 = time.time()
 
-        # train
+        # ── train ──────────────────────────────────────────────────────────────
         model.train()
         tr_losses = []
-        for clips in train_dl:
+        train_bar = tqdm(train_dl, desc=f"  Train {epoch:3d}/{args.epochs}",
+                         leave=False, unit="batch")
+        for clips in train_bar:
             clips = clips.to(DEVICE)
             loss  = combined_loss(model(clips), clips)
             opt.zero_grad()
@@ -186,32 +191,36 @@ def train(args):
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
             tr_losses.append(loss.item())
+            train_bar.set_postfix(loss=f"{loss.item():.5f}",
+                                  avg=f"{np.mean(tr_losses):.5f}")
         tr_loss = float(np.mean(tr_losses))
 
-        # val
+        # ── val ────────────────────────────────────────────────────────────────
         model.eval()
         vl_losses = []
         with torch.no_grad():
-            for clips in val_dl:
+            val_bar = tqdm(val_dl, desc=f"  Val   {epoch:3d}/{args.epochs}",
+                           leave=False, unit="batch")
+            for clips in val_bar:
                 clips = clips.to(DEVICE)
-                vl_losses.append(combined_loss(model(clips), clips).item())
+                v     = combined_loss(model(clips), clips).item()
+                vl_losses.append(v)
+                val_bar.set_postfix(loss=f"{v:.5f}",
+                                    avg=f"{np.mean(vl_losses):.5f}")
         vl_loss = float(np.mean(vl_losses))
 
         sched.step()
 
-        # gap monitoring every 5 epochs
+        # ── gap monitoring every 5 epochs ──────────────────────────────────────
         gap = None
         gap_str = ""
         if epoch % 5 == 0 and abn_idx:
             model.eval()
-            nm_err  = mean_recon_error(model, val_idx)
-            abn_err = mean_recon_error(model, abn_idx)
+            nm_err  = mean_recon_error(model, val_idx,  label="nm-err")
+            abn_err = mean_recon_error(model, abn_idx, label="abn-err")
             gap     = abn_err - nm_err
-            gap_str = f"   gap={gap:+.5f}  (nm={nm_err:.5f}, abn={abn_err:.5f})"
-            if gap < 0.005:
-                gap_str += "  ← still low"
-            else:
-                gap_str += "  ✓ separation improving"
+            gap_str = f"  gap={gap:+.5f} (nm={nm_err:.5f}, abn={abn_err:.5f})"
+            gap_str += "  ← still low" if gap < 0.005 else "  ✓ improving"
 
         log_rows.append({
             "epoch": epoch, "train_loss": round(tr_loss, 6),
@@ -219,18 +228,26 @@ def train(args):
         })
 
         elapsed = time.time() - t0
-        print(f"Epoch {epoch:3d}/{args.epochs}  "
-              f"train={tr_loss:.5f}  val={vl_loss:.5f}{gap_str}  [{elapsed:.1f}s]")
-
+        saved_marker = ""
         if vl_loss < best_val:
             best_val   = vl_loss
             patience_c = 0
             torch.save(model.state_dict(), ckpt_path)
-            print(f"  → Saved {ckpt_path.name}  (best val={vl_loss:.5f})")
-        else:
+            saved_marker = "  ✔ saved"
+
+        epoch_bar.set_postfix(train=f"{tr_loss:.5f}", val=f"{vl_loss:.5f}",
+                               best=f"{best_val:.5f}", pat=patience_c)
+        tqdm.write(
+            f"Epoch {epoch:3d}/{args.epochs}  "
+            f"train={tr_loss:.5f}  val={vl_loss:.5f}{gap_str}"
+            f"  [{elapsed:.1f}s]{saved_marker}"
+        )
+
+        if not saved_marker:
             patience_c += 1
             if patience_c >= args.patience:
-                print(f"\nEarly stop at epoch {epoch} (no val improvement for {args.patience} epochs)")
+                tqdm.write(f"\nEarly stop at epoch {epoch} "
+                           f"(no val improvement for {args.patience} epochs)")
                 break
 
     RESULTS.mkdir(exist_ok=True)
