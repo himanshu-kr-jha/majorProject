@@ -23,6 +23,10 @@ Usage:
 """
 
 import os
+
+os.environ.setdefault("OMP_NUM_THREADS", "12")
+os.environ.setdefault("MKL_NUM_THREADS", "12")
+
 import sys
 import csv
 import argparse
@@ -32,6 +36,9 @@ from pathlib import Path
 
 import numpy as np
 import torch
+
+torch.set_num_threads(12)
+torch.set_num_interop_threads(1)
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -49,8 +56,8 @@ from train import TransformerAutoencoder, GaitSequenceDataset, _gauss_kernel
 # ── Environment-adaptive constants ───────────────────────────────────────────
 
 DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE  = 32 if DEVICE == "cuda" else 8
-NUM_WORKERS = 4  if DEVICE == "cuda" else 0
+BATCH_SIZE  = 32 if DEVICE == "cuda" else 32 
+NUM_WORKERS = 4  if DEVICE == "cuda" else 4
 PIN_MEMORY  = DEVICE == "cuda"
 
 SEQ_LEN    = 15
@@ -66,23 +73,22 @@ ABN_CONDS   = {"bg-01", "bg-02", "cl-01", "cl-02"}
 
 def ssim_loss_tensor(recon: torch.Tensor, original: torch.Tensor,
                      window_size: int = 11) -> torch.Tensor:
-    """Returns mean (1-SSIM) as a differentiable tensor."""
+    """Returns mean (1-SSIM) as a differentiable tensor. Vectorized over T."""
     B, T, C, H, W = recon.shape
     kernel  = _gauss_kernel(window_size, sigma=1.5, device=recon.device).expand(C, 1, -1, -1)
     padding = window_size // 2
     C1, C2  = 0.01 ** 2, 0.03 ** 2
-    losses  = []
-    for t in range(T):
-        r, o   = recon[:, t], original[:, t]
-        mu_r   = F.conv2d(r,   kernel, padding=padding, groups=C)
-        mu_o   = F.conv2d(o,   kernel, padding=padding, groups=C)
-        sig_r  = F.conv2d(r*r, kernel, padding=padding, groups=C) - mu_r**2
-        sig_o  = F.conv2d(o*o, kernel, padding=padding, groups=C) - mu_o**2
-        sig_ro = F.conv2d(r*o, kernel, padding=padding, groups=C) - mu_r*mu_o
-        ssim   = ((2*mu_r*mu_o + C1)*(2*sig_ro + C2)) / (
-                  (mu_r**2 + mu_o**2 + C1)*(sig_r + sig_o + C2) + 1e-8)
-        losses.append(1.0 - ssim.mean())
-    return torch.stack(losses).mean()
+    # Fold T into the batch dim — one conv2d call covers all frames
+    r = recon.view(B * T, C, H, W)
+    o = original.view(B * T, C, H, W)
+    mu_r   = F.conv2d(r,   kernel, padding=padding, groups=C)
+    mu_o   = F.conv2d(o,   kernel, padding=padding, groups=C)
+    sig_r  = F.conv2d(r*r, kernel, padding=padding, groups=C) - mu_r**2
+    sig_o  = F.conv2d(o*o, kernel, padding=padding, groups=C) - mu_o**2
+    sig_ro = F.conv2d(r*o, kernel, padding=padding, groups=C) - mu_r*mu_o
+    ssim   = ((2*mu_r*mu_o + C1)*(2*sig_ro + C2)) / (
+              (mu_r**2 + mu_o**2 + C1)*(sig_r + sig_o + C2) + 1e-8)
+    return (1.0 - ssim).mean()
 
 
 def combined_loss(recon: torch.Tensor, original: torch.Tensor) -> torch.Tensor:
@@ -136,12 +142,17 @@ def mean_recon_error(model, seq_list, label="gap", max_seqs=400):
 # ── Training loop ─────────────────────────────────────────────────────────────
 
 def train(args):
+    os.environ["OMP_NUM_THREADS"] = str(args.num_threads)
+    os.environ["MKL_NUM_THREADS"] = str(args.num_threads)
+    torch.set_num_threads(args.num_threads)
+
     print(f"Device:      {DEVICE}")
     print(f"Batch size:  {BATCH_SIZE}   Workers: {NUM_WORKERS}")
+    print(f"CPU threads: {torch.get_num_threads()}  (OMP={os.environ.get('OMP_NUM_THREADS', '?')})")
 
     data_dir = Path(args.dataset)
     print("\nBuilding dataset indices ...")
-    train_idx = build_split_index(data_dir, TRAIN_CONDS, SEQ_LEN, step=1)
+    train_idx = build_split_index(data_dir, TRAIN_CONDS, SEQ_LEN, step=8)
     val_idx   = build_split_index(data_dir, VAL_CONDS,   SEQ_LEN, step=2)
     abn_idx   = build_split_index(data_dir, ABN_CONDS,   SEQ_LEN, step=4)
     print(f"  Train (nm-01..04): {len(train_idx)} sequences")
@@ -268,6 +279,8 @@ if __name__ == "__main__":
     parser.add_argument("--dataset",  default=str(DATA_DIR))
     parser.add_argument("--epochs",   type=int,   default=80)
     parser.add_argument("--patience", type=int,   default=15)
-    parser.add_argument("--lr",       type=float, default=1e-4)
+    parser.add_argument("--lr",          type=float, default=1e-4)
+    parser.add_argument("--num-threads", type=int,   default=12,
+                        help="Number of CPU threads for OpenMP/PyTorch (default: 12)")
     args = parser.parse_args()
     train(args)
