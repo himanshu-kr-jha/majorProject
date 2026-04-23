@@ -46,9 +46,9 @@ def load_model():
     import torch
     from train import TransformerAutoencoder
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model  = TransformerAutoencoder(latent_dim=512, seq_len=SEQ_LEN).to(device)
+    model  = TransformerAutoencoder(latent_dim=128, seq_len=SEQ_LEN).to(device)
     if os.path.exists(CKPT):
-        model.load_state_dict(torch.load(CKPT, map_location=device))
+        model.load_state_dict(torch.load(CKPT, map_location=device, weights_only=True))
         print(f"[Gait] Loaded checkpoint: {CKPT}")
     else:
         print(f"[Gait] WARNING: checkpoint not found at {CKPT} — using random weights")
