@@ -96,6 +96,8 @@ def ssim_loss_tensor(recon: torch.Tensor, original: torch.Tensor,
 
 
 def combined_loss(recon: torch.Tensor, original: torch.Tensor) -> torch.Tensor:
+    recon    = recon.float()
+    original = original.float()
     return 0.5 * F.mse_loss(recon, original) + 0.5 * ssim_loss_tensor(recon, original)
 
 
@@ -185,7 +187,7 @@ def train(args):
     model  = TransformerAutoencoder(latent_dim=LATENT_DIM, seq_len=SEQ_LEN).to(DEVICE)
     opt    = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-5)
     sched  = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=1e-6)
-    scaler = torch.cuda.amp.GradScaler(enabled=(DEVICE == "cuda"))
+    scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE == "cuda"))
 
     best_val   = float("inf")
     patience_c = 0
