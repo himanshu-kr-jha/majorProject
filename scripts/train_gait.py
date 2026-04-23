@@ -1,25 +1,27 @@
 """
 Train the TransformerAutoencoder on CASIA-B (normal gait only).
 
-CRITICAL FIX: The existing best_transformer_gait.pth was trained on mixed
-normal+abnormal data → near-zero separation (Δμ=0.0002).  This script trains
-ONLY on nm-01..nm-04 so the model learns "what normal gait looks like".
+Trains ONLY on nm-01..nm-04 so the model learns "what normal gait looks like".
 Abnormal sequences (bg-*, cl-*) must NEVER appear during training or validation.
 
 Dataset split:
-  Train : nm-01..nm-04 (all 124 subjects, all 11 angles) ≈ 5,456 sequences
-  Val   : nm-05..nm-06 (all subjects, all angles)        ≈ 2,728 sequences
+  Train : nm-01..nm-04 (all 124 subjects, all 11 angles)
+  Val   : nm-05..nm-06 (all subjects, all angles)
   Test  : bg-01, bg-02, cl-01, cl-02  (evaluated by scripts/run_gait_eval.py)
 
-Auto-detects GPU vs CPU and adjusts batch/workers accordingly.
+Key changes vs previous version:
+  - latent_dim 512 -> 128: smaller bottleneck forces normal-only encoding
+  - Loss: pure MSE (dropped SSIM — unstable in FP16 on binary silhouettes)
+  - Pixel dropout 10%: forces reconstruction from context, not pixel copying
+  - Epochs 40, patience 15, lr 3e-4
 
 Outputs:
   models/casib-b/best_gait_v2.pth    — best val-loss checkpoint
   results/gait_train_log.csv         — epoch, train_loss, val_loss, error_gap
 
 Usage:
-    python3 scripts/train_gait.py
-    python3 scripts/train_gait.py --epochs 80 --dataset /path/to/casia-b
+    python scripts/train_gait.py
+    python scripts/train_gait.py --epochs 60 --dataset /path/to/casia-b
 """
 
 import os
@@ -36,7 +38,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -49,7 +50,7 @@ RESULTS  = ROOT / "results"
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(GAIT_DIR))
 
-from train import TransformerAutoencoder, GaitSequenceDataset, _gauss_kernel
+from train import TransformerAutoencoder, GaitSequenceDataset
 
 # ── Environment-adaptive constants ───────────────────────────────────────────
 
@@ -66,45 +67,23 @@ else:
 
 SEQ_LEN    = 15
 IMG_SIZE   = (64, 64)
-LATENT_DIM = 512
+LATENT_DIM = 128
 
 TRAIN_CONDS = {"nm-01", "nm-02", "nm-03", "nm-04"}
 VAL_CONDS   = {"nm-05", "nm-06"}
 ABN_CONDS   = {"bg-01", "bg-02", "cl-01", "cl-02"}
 
 
-# ── Differentiable SSIM loss ─────────────────────────────────────────────────
+# ── Loss ──────────────────────────────────────────────────────────────────────
 
-def ssim_loss_tensor(recon: torch.Tensor, original: torch.Tensor,
-                     window_size: int = 11) -> torch.Tensor:
-    """Returns mean (1-SSIM) as a differentiable tensor. Vectorized over T."""
-    B, T, C, H, W = recon.shape
-    kernel  = _gauss_kernel(window_size, sigma=1.5, device=recon.device).expand(C, 1, -1, -1)
-    padding = window_size // 2
-    C1, C2  = 0.01 ** 2, 0.03 ** 2
-    # Fold T into the batch dim — one conv2d call covers all frames
-    r = recon.view(B * T, C, H, W)
-    o = original.view(B * T, C, H, W)
-    mu_r   = F.conv2d(r,   kernel, padding=padding, groups=C)
-    mu_o   = F.conv2d(o,   kernel, padding=padding, groups=C)
-    sig_r  = F.conv2d(r*r, kernel, padding=padding, groups=C) - mu_r**2
-    sig_o  = F.conv2d(o*o, kernel, padding=padding, groups=C) - mu_o**2
-    sig_ro = F.conv2d(r*o, kernel, padding=padding, groups=C) - mu_r*mu_o
-    ssim   = ((2*mu_r*mu_o + C1)*(2*sig_ro + C2)) / (
-              (mu_r**2 + mu_o**2 + C1)*(sig_r + sig_o + C2) + 1e-8)
-    return (1.0 - ssim).mean()
-
-
-def combined_loss(recon: torch.Tensor, original: torch.Tensor) -> torch.Tensor:
-    recon    = recon.float()
-    original = original.float()
-    return 0.5 * F.mse_loss(recon, original) + 0.5 * ssim_loss_tensor(recon, original)
+def recon_loss(recon: torch.Tensor, original: torch.Tensor) -> torch.Tensor:
+    """Pure MSE in float32. Always >= 0, no FP16 instability."""
+    return F.mse_loss(recon.float(), original.float())
 
 
 # ── Dataset builder ──────────────────────────────────────────────────────────
 
 def build_split_index(data_dir: Path, conditions: set, seq_len: int, step: int = 1):
-    """Build list-of-frame-path-lists for a specific set of condition names."""
     output_dir = data_dir / "output" if (data_dir / "output").is_dir() else data_dir
     index = []
     for subj in sorted(os.listdir(output_dir)):
@@ -129,7 +108,7 @@ def build_split_index(data_dir: Path, conditions: set, seq_len: int, step: int =
     return index
 
 
-# ── Mean reconstruction error ────────────────────────────────────────────────
+# ── Mean reconstruction error (gap monitoring) ────────────────────────────────
 
 @torch.no_grad()
 def mean_recon_error(model, seq_list, label="gap", max_seqs=400):
@@ -141,7 +120,7 @@ def mean_recon_error(model, seq_list, label="gap", max_seqs=400):
         clips = clips.to(DEVICE)
         recon = model(clips)
         for b in range(clips.size(0)):
-            errs.append(F.mse_loss(recon[b], clips[b]).item())
+            errs.append(F.mse_loss(recon[b].float(), clips[b].float()).item())
     return float(np.mean(errs)) if errs else 0.0
 
 
@@ -157,7 +136,7 @@ def train(args):
     if DEVICE == "cuda":
         print(f"GPU:         {torch.cuda.get_device_name(0)}  "
               f"({torch.cuda.get_device_properties(0).total_memory // 1024**2} MB)")
-    print(f"Batch size:  {BATCH_SIZE}   Workers: {NUM_WORKERS}")
+    print(f"Batch size:  {BATCH_SIZE}   Workers: {NUM_WORKERS}   Latent dim: {LATENT_DIM}")
     if DEVICE == "cpu":
         print(f"CPU threads: {torch.get_num_threads()}  (OMP={os.environ.get('OMP_NUM_THREADS', '?')})")
 
@@ -208,9 +187,12 @@ def train(args):
                          leave=False, unit="batch")
         for clips in train_bar:
             clips = clips.to(DEVICE, non_blocking=PIN_MEMORY)
+            # pixel dropout: zero 10% of pixels so model learns to infer from context
+            mask      = torch.bernoulli(torch.full_like(clips, 0.90))
+            clips_aug = clips * mask
             opt.zero_grad()
             with torch.autocast(device_type=DEVICE, enabled=(DEVICE == "cuda")):
-                loss = combined_loss(model(clips), clips)
+                loss = recon_loss(model(clips_aug), clips)
             scaler.scale(loss).backward()
             scaler.unscale_(opt)
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -221,7 +203,7 @@ def train(args):
                                   avg=f"{np.mean(tr_losses):.5f}")
         tr_loss = float(np.mean(tr_losses))
 
-        # ── val ────────────────────────────────────────────────────────────────
+        # ── val (no augmentation) ──────────────────────────────────────────────
         model.eval()
         vl_losses = []
         with torch.no_grad():
@@ -230,7 +212,7 @@ def train(args):
             for clips in val_bar:
                 clips = clips.to(DEVICE, non_blocking=PIN_MEMORY)
                 with torch.autocast(device_type=DEVICE, enabled=(DEVICE == "cuda")):
-                    v = combined_loss(model(clips), clips).item()
+                    v = recon_loss(model(clips), clips).item()
                 vl_losses.append(v)
                 val_bar.set_postfix(loss=f"{v:.5f}",
                                     avg=f"{np.mean(vl_losses):.5f}")
@@ -287,16 +269,16 @@ def train(args):
     print(f"\nDone. Best val loss: {best_val:.5f}")
     print(f"Checkpoint : {ckpt_path}")
     print(f"Train log  : {log_path}")
-    print("\nNext: update CKPT in scripts/run_gait_eval.py to 'best_gait_v2.pth', then run eval.")
+    print("\nNext: run scripts/run_gait_eval.py then update thresholds in src/fusion/mlp_fusion.py")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train gait autoencoder (normal-only CASIA-B)")
-    parser.add_argument("--dataset",  default=str(DATA_DIR))
-    parser.add_argument("--epochs",   type=int,   default=20)
-    parser.add_argument("--patience", type=int,   default=8)
-    parser.add_argument("--lr",          type=float, default=1e-4)
+    parser.add_argument("--dataset",     default=str(DATA_DIR))
+    parser.add_argument("--epochs",      type=int,   default=40)
+    parser.add_argument("--patience",    type=int,   default=15)
+    parser.add_argument("--lr",          type=float, default=3e-4)
     parser.add_argument("--num-threads", type=int,   default=12,
-                        help="Number of CPU threads for OpenMP/PyTorch (default: 12)")
+                        help="CPU threads for OpenMP/PyTorch (CPU mode only)")
     args = parser.parse_args()
     train(args)
