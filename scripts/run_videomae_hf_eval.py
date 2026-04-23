@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 DATASET_DIR     = ROOT / "datasets" / "anomalydetectiondatasetucf"
 MODEL_DIR       = ROOT / "models" / "videoMae" / "best_model"
-RESULTS_DIR     = ROOT / "results"/ "videomaeHF_resutls"
+RESULTS_DIR     = ROOT / "results" / "videomaeHF_results"
 NORMAL_CLASS_ID = 7   # "Normal_Videos_Event" — config.json id2label[7]
 NUM_FRAMES      = 16  # VideoMAE ViT-B expects exactly 16 frames
 
@@ -62,8 +62,14 @@ def find_test_videos(dataset_dir: Path):
     """
     Returns (anomaly_videos, normal_videos).
     Each element is (Path, int_label) — label 1=anomaly, 0=normal.
+
+    UCF-Crime protocol: Anomaly_Test.txt contains BOTH anomaly clips AND
+    Normal_Videos clips (290 total = 140 anomaly + 150 normal).
+    Entries with "Normal_Videos" in the path are negatives (label=0).
+    Labeling all 290 as anomaly=1 was the original bug that caused tn=0.
     """
     anomaly_videos = []
+    normal_from_txt = []
     test_file = dataset_dir / "Anomaly_Test.txt"
     if test_file.exists():
         with open(test_file) as f:
@@ -72,15 +78,24 @@ def find_test_videos(dataset_dir: Path):
                 if not rel:
                     continue
                 full = dataset_dir / rel
-                if full.exists():
+                if not full.exists():
+                    continue
+                if "Normal_Videos" in rel:
+                    normal_from_txt.append((full, 0))
+                else:
                     anomaly_videos.append((full, 1))
 
-    normal_dir = (dataset_dir / "Normal_Videos_for_Event_Recognition"
-                  / "Normal_Videos_for_Event_Recognition")
-    normal_videos = []
-    if normal_dir.exists():
-        for p in sorted(normal_dir.glob("*.mp4")):
-            normal_videos.append((p, 0))
+    # Prefer normals from the test file (authoritative split);
+    # fall back to directory scan only if the txt had no normal entries.
+    if normal_from_txt:
+        normal_videos = normal_from_txt
+    else:
+        normal_dir = (dataset_dir / "Normal_Videos_for_Event_Recognition"
+                      / "Normal_Videos_for_Event_Recognition")
+        normal_videos = []
+        if normal_dir.exists():
+            for p in sorted(normal_dir.glob("*.mp4")):
+                normal_videos.append((p, 0))
 
     return anomaly_videos, normal_videos
 
