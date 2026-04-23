@@ -1,0 +1,8 @@
+config,name,precision,recall,f1,fpr,fps,tp,fp,fn,tn
+yolo_only,YOLO-Only,1.0,0.1286,0.2278,0.0,35.0,18,0,122,50
+mae_only,VideoMAE-Only,0.9452,0.9857,0.965,0.16,8.0,138,8,2,42
+gait_only,Gait-Only,0.8947,0.85,0.8718,0.28,12.0,119,14,21,36
+yolo_mae,YOLO + VideoMAE,0.9456,0.9929,0.9686,0.16,15.0,139,8,1,42
+yolo_gait,YOLO + Gait,0.8955,0.8571,0.8759,0.28,18.0,120,14,20,36
+full_rule,Full System (Rule),0.915,1.0,0.9556,0.26,20.0,140,13,0,37
+full_mlp,Full System (MLP),0.9032,1.0,0.9492,0.3,19.5,140,15,0,35

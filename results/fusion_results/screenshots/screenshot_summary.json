@@ -1,0 +1,174 @@
+{
+  "n_cases": 15,
+  "n_saved": 15,
+  "n_missing": 0,
+  "threshold": 0.9654,
+  "cases": [
+    {
+      "video": "Normal_Videos_246_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.992036,
+      "gait": 0.060556,
+      "yolo": 0.04600158937595043,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_248_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.978233,
+      "gait": 0.067197,
+      "yolo": 0.2250451195806457,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_251_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.990578,
+      "gait": 0.062899,
+      "yolo": 0.0,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_345_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.979712,
+      "gait": 0.064715,
+      "yolo": 0.019782049313768174,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_576_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.973854,
+      "gait": 0.059875,
+      "yolo": 0.11837574076564178,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_704_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.986943,
+      "gait": 0.066162,
+      "yolo": 0.14831988424957113,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_801_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.998306,
+      "gait": 0.063662,
+      "yolo": 0.23793979748628286,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Normal_Videos_877_x264.mp4",
+      "case_type": "FP-Normal",
+      "true_label": "Normal",
+      "mae": 0.971966,
+      "gait": 0.060987,
+      "yolo": 0.22777919354289483,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Robbery050_x264.mp4",
+      "case_type": "FN-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.910202,
+      "gait": 0.064111,
+      "yolo": 0.8754482413936067,
+      "rule_alert": "CRITICAL",
+      "mlp_alert": "CRITICAL",
+      "final_alert": "CRITICAL"
+    },
+    {
+      "video": "Shoplifting022_x264.mp4",
+      "case_type": "FN-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.947816,
+      "gait": 0.06653,
+      "yolo": 0.23610112107024547,
+      "rule_alert": "MEDIUM",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Arson011_x264.mp4",
+      "case_type": "TP-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.999776,
+      "gait": 0.0668,
+      "yolo": 0.22425009408989985,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Stealing079_x264.mp4",
+      "case_type": "TP-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.999685,
+      "gait": 0.072812,
+      "yolo": 0.06493408790052013,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Robbery048_x264.mp4",
+      "case_type": "TP-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.999592,
+      "gait": 0.062518,
+      "yolo": 0.6400148178027495,
+      "rule_alert": "CRITICAL",
+      "mlp_alert": "CRITICAL",
+      "final_alert": "CRITICAL"
+    },
+    {
+      "video": "Burglary018_x264.mp4",
+      "case_type": "TP-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.999575,
+      "gait": 0.067354,
+      "yolo": 0.15781651637456873,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    },
+    {
+      "video": "Explosion036_x264.mp4",
+      "case_type": "TP-Anomaly",
+      "true_label": "Anomaly",
+      "mae": 0.999563,
+      "gait": 0.068001,
+      "yolo": 0.3267049606408836,
+      "rule_alert": "HIGH",
+      "mlp_alert": "HIGH",
+      "final_alert": "HIGH"
+    }
+  ],
+  "output_dir": "/home/himanshu-kumar-jha/Documents/majorProject/results/fusion_results/screenshots"
+}

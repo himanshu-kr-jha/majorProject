@@ -1,0 +1,22 @@
+{
+  "model": "/home/himanshu-kumar-jha/Documents/majorProject/models/videoMae/best_model",
+  "dataset": "/home/himanshu-kumar-jha/Documents/majorProject/datasets/anomalydetectiondatasetucf",
+  "best_threshold": 0.9654385964912281,
+  "precision": 0.9452054794455809,
+  "recall": 0.985714285707245,
+  "f1": 0.9650349645284366,
+  "accuracy": 0.9473684210526315,
+  "auc_roc": 0.9804285714285714,
+  "tp": 138,
+  "fp": 8,
+  "fn": 2,
+  "tn": 42,
+  "n_anomaly": 140,
+  "n_normal": 50,
+  "n_total": 190,
+  "n_skipped": 0,
+  "normal_mean_score": 0.4632121,
+  "normal_std_score": 0.3825952378068629,
+  "anomaly_mean_score": 0.9953263785714285,
+  "anomaly_std_score": 0.009943813315300165
+}

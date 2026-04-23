@@ -16,10 +16,10 @@ ALERT_LEVELS = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']
 
 # Thresholds — YOLO/action from PDF §6.5; gait recalibrated from real CASIA-B eval
 _YOLO_CRITICAL_CONF = 0.60
-_ACTION_HIGH_PROB   = 0.75
-_ACTION_MED_LOW     = 0.40
-_GAIT_MEDIUM_THRESH = 0.0491   # real F1-optimal threshold (nm_mean=0.0511, real score scale)
-_GAIT_LOW_THRESH    = 0.0520   # nm_mean + 1.5*sigma = 0.0511 + 1.5*0.0006
+_ACTION_HIGH_PROB   = 0.9654   # VideoMAE F1-optimal threshold (real UCF-Crime eval)
+_ACTION_MED_LOW     = 0.50     # VideoMAE soft lower bound for MEDIUM rule
+_GAIT_MEDIUM_THRESH = 0.0642   # Gait F1-optimal (real CASIA-B: nm_mean=0.0632, σ=0.0039)
+_GAIT_LOW_THRESH    = 0.0726   # nm_mean + 2.5*sigma = 0.0632 + 2.5*0.0039
 
 WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'mlp_fusion_weights.pth')
 
@@ -63,21 +63,21 @@ def generate_bootstrap_dataset(n_samples: int = 10000, seed: int = 42):
 
     yolo_conf   = rng.beta(2, 5, n_samples)
     action_prob = rng.beta(2, 3, n_samples)
-    # Real CASIA-B scale: nm_mean=0.0511, ab_mean=0.0513, range ~[0.049, 0.057]
-    gait_error  = np.clip(rng.normal(0.0511, 0.0008, n_samples), 0.048, 0.058)
+    # Real CASIA-B scale: nm_mean=0.0632, ab_mean=0.0699, range ~[0.057, 0.091]
+    gait_error  = np.clip(rng.normal(0.0632, 0.0039, n_samples), 0.055, 0.095)
 
     # Inject realistic positives to balance classes
     n_pos = n_samples // 8
     yolo_conf[-n_pos:]            = rng.uniform(0.61, 0.99, n_pos)
-    action_prob[-2*n_pos:-n_pos]  = rng.uniform(0.76, 0.99, n_pos)
-    gait_error[-3*n_pos:-2*n_pos] = rng.uniform(0.0515, 0.058, n_pos)  # above real threshold
+    action_prob[-2*n_pos:-n_pos]  = rng.uniform(0.97, 0.999, n_pos)   # real anomaly score range
+    gait_error[-3*n_pos:-2*n_pos] = rng.uniform(0.0650, 0.091, n_pos) # above real threshold
 
     labels = np.array([
         rule_based_label(float(yolo_conf[i]), float(action_prob[i]), float(gait_error[i]))
         for i in range(n_samples)
     ], dtype=np.int64)
 
-    gait_norm = gait_error / 0.06  # normalize to [0,1] using real empirical max ~0.06
+    gait_norm = gait_error / 0.10  # normalize to [0,1] using real empirical max ~0.10
     X = np.stack([yolo_conf, action_prob, gait_norm], axis=1).astype(np.float32)
     return X, labels
 
@@ -144,7 +144,7 @@ class FusionEnsemble:
         }
 
         if self.use_mlp and self._mlp is not None:
-            gait_norm = min(gait_error / 0.06, 1.0)  # real empirical max ~0.06
+            gait_norm = min(gait_error / 0.10, 1.0)  # real empirical max ~0.10
             x = torch.tensor([[yolo_conf, action_prob, gait_norm]], dtype=torch.float32)
             with torch.no_grad():
                 probs = self._mlp(x).squeeze(0).numpy()

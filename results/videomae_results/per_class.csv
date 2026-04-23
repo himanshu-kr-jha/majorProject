@@ -1,0 +1,15 @@
+category,total,detected,detection_rate
+Abuse,2,2,1.0000
+Arrest,5,5,1.0000
+Arson,9,9,1.0000
+Assault,3,3,1.0000
+Burglary,13,13,1.0000
+Explosion,21,21,1.0000
+Fighting,5,5,1.0000
+Normal,50,0,0.0000
+RoadAccidents,23,23,1.0000
+Robbery,5,4,0.8000
+Shooting,23,23,1.0000
+Shoplifting,21,20,0.9524
+Stealing,5,5,1.0000
+Vandalism,5,5,1.0000

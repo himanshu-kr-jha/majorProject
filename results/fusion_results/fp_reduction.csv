@@ -1,0 +1,4 @@
+system,fp_rate,fp_reduction_pct
+"YOLO-Only (weapon test, no persistence)",0.4392,0.0 (baseline)
+VideoMAE-Only (UCF-Crime),0.1600,reference
+Full System (MLP),0.3000,-87.5
