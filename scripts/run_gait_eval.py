@@ -6,13 +6,14 @@ Label convention (from PDF §3.3):
   bg-* (bag carrying)    → label 1 (ABNORMAL)
   cl-* (coat wearing)    → label 1 (ABNORMAL)
 
-Anomaly score: 0.3 * MSE + 0.7 * SSIM_loss  (per sequence of 15 frames)
+Anomaly score: MSE reconstruction error (per sequence of 15 frames)
 
-Outputs:
-  - results/gait_real_errors.csv
-  - results/gait_real_metrics.json
-  - results/figures/gait_error_dist.png
-  - results/figures/threshold_sweep.png
+Outputs (all under results/gait_results/):
+  - gait_real_errors.csv
+  - gait_real_metrics.json
+  - gait_threshold_sweep.csv
+  - figures/gait_error_dist.png
+  - figures/threshold_sweep.png
 
 Usage:
     python3 scripts/run_gait_eval.py
@@ -28,7 +29,7 @@ GAIT_DIR = os.path.join(ROOT, 'models', 'casib-b')
 DATA_DIR = os.path.join(ROOT, 'datasets', 'casia-b')
 CKPT     = os.path.join(GAIT_DIR, 'best_gait_v2.pth')
 
-RESULTS_DIR = os.path.join(ROOT, 'results')
+RESULTS_DIR = os.path.join(ROOT, 'results', 'gait_results')
 FIGS_DIR    = os.path.join(RESULTS_DIR, 'figures')
 os.makedirs(FIGS_DIR, exist_ok=True)
 
@@ -244,7 +245,7 @@ def _plot_error_dist(nm_err, ab_err, threshold):
     ax.hist(ab_err, bins=bins, alpha=0.6, color='darkorange', label='Abnormal (bg+cl)')
     ax.axvline(threshold, color='red', linestyle='--', linewidth=1.5,
                label=f'Threshold={threshold:.4f}')
-    ax.set_xlabel('Anomaly Score (0.3·MSE + 0.7·SSIM loss)')
+    ax.set_xlabel('Anomaly Score (MSE reconstruction error)')
     ax.set_ylabel('Frequency')
     ax.set_title('Gait Reconstruction Error Distribution — CASIA-B (Real)')
     ax.legend()
