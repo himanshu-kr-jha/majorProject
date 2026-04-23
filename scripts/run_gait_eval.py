@@ -26,7 +26,7 @@ import pandas as pd
 ROOT     = os.path.join(os.path.dirname(__file__), '..')
 GAIT_DIR = os.path.join(ROOT, 'models', 'casib-b')
 DATA_DIR = os.path.join(ROOT, 'datasets', 'casia-b')
-CKPT     = os.path.join(GAIT_DIR, 'best_transformer_gait.pth')
+CKPT     = os.path.join(GAIT_DIR, 'best_gait_v2.pth')
 
 RESULTS_DIR = os.path.join(ROOT, 'results')
 FIGS_DIR    = os.path.join(RESULTS_DIR, 'figures')
