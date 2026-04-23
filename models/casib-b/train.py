@@ -77,10 +77,10 @@ class TransformerAutoencoder(nn.Module):
 
     def forward(self, x):
         B, T, C, H, W = x.shape
-        feats = torch.stack([self.encoder(x[:, t]) for t in range(T)], dim=1)
+        feats = self.encoder(x.view(B * T, C, H, W)).view(B, T, -1)
         feats = self.pos(feats)
         feats = self.transformer(feats)
-        return torch.stack([self.decoder(feats[:, t]) for t in range(T)], dim=1)
+        return self.decoder(feats.reshape(B * T, -1)).view(B, T, C, H, W)
 
 
 # ── SSIM Loss ─────────────────────────────────────────────────────────────────

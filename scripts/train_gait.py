@@ -37,8 +37,6 @@ from pathlib import Path
 import numpy as np
 import torch
 
-torch.set_num_threads(12)
-torch.set_num_interop_threads(1)
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -56,9 +54,15 @@ from train import TransformerAutoencoder, GaitSequenceDataset, _gauss_kernel
 # ── Environment-adaptive constants ───────────────────────────────────────────
 
 DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE  = 32 if DEVICE == "cuda" else 32 
-NUM_WORKERS = 4  if DEVICE == "cuda" else 4
+BATCH_SIZE  = 64 if DEVICE == "cuda" else 32
+NUM_WORKERS = 8  if DEVICE == "cuda" else 4
 PIN_MEMORY  = DEVICE == "cuda"
+
+if DEVICE == "cuda":
+    torch.backends.cudnn.benchmark = True
+else:
+    torch.set_num_threads(12)
+    torch.set_num_interop_threads(1)
 
 SEQ_LEN    = 15
 IMG_SIZE   = (64, 64)
@@ -142,19 +146,24 @@ def mean_recon_error(model, seq_list, label="gap", max_seqs=400):
 # ── Training loop ─────────────────────────────────────────────────────────────
 
 def train(args):
-    os.environ["OMP_NUM_THREADS"] = str(args.num_threads)
-    os.environ["MKL_NUM_THREADS"] = str(args.num_threads)
-    torch.set_num_threads(args.num_threads)
+    if DEVICE == "cpu":
+        os.environ["OMP_NUM_THREADS"] = str(args.num_threads)
+        os.environ["MKL_NUM_THREADS"] = str(args.num_threads)
+        torch.set_num_threads(args.num_threads)
 
     print(f"Device:      {DEVICE}")
+    if DEVICE == "cuda":
+        print(f"GPU:         {torch.cuda.get_device_name(0)}  "
+              f"({torch.cuda.get_device_properties(0).total_memory // 1024**2} MB)")
     print(f"Batch size:  {BATCH_SIZE}   Workers: {NUM_WORKERS}")
-    print(f"CPU threads: {torch.get_num_threads()}  (OMP={os.environ.get('OMP_NUM_THREADS', '?')})")
+    if DEVICE == "cpu":
+        print(f"CPU threads: {torch.get_num_threads()}  (OMP={os.environ.get('OMP_NUM_THREADS', '?')})")
 
     data_dir = Path(args.dataset)
     print("\nBuilding dataset indices ...")
-    train_idx = build_split_index(data_dir, TRAIN_CONDS, SEQ_LEN, step=8)
-    val_idx   = build_split_index(data_dir, VAL_CONDS,   SEQ_LEN, step=2)
-    abn_idx   = build_split_index(data_dir, ABN_CONDS,   SEQ_LEN, step=4)
+    train_idx = build_split_index(data_dir, TRAIN_CONDS, SEQ_LEN, step=16)
+    val_idx   = build_split_index(data_dir, VAL_CONDS,   SEQ_LEN, step=8)
+    abn_idx   = build_split_index(data_dir, ABN_CONDS,   SEQ_LEN, step=8)
     print(f"  Train (nm-01..04): {len(train_idx)} sequences")
     print(f"  Val   (nm-05..06): {len(val_idx)} sequences")
     print(f"  Abn monitor:       {min(len(abn_idx), 400)} sequences (not used in training)")
@@ -173,9 +182,10 @@ def train(args):
         num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY,
     )
 
-    model = TransformerAutoencoder(latent_dim=LATENT_DIM, seq_len=SEQ_LEN).to(DEVICE)
-    opt   = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-5)
-    sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=1e-6)
+    model  = TransformerAutoencoder(latent_dim=LATENT_DIM, seq_len=SEQ_LEN).to(DEVICE)
+    opt    = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-5)
+    sched  = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=1e-6)
+    scaler = torch.cuda.amp.GradScaler(enabled=(DEVICE == "cuda"))
 
     best_val   = float("inf")
     patience_c = 0
@@ -195,12 +205,15 @@ def train(args):
         train_bar = tqdm(train_dl, desc=f"  Train {epoch:3d}/{args.epochs}",
                          leave=False, unit="batch")
         for clips in train_bar:
-            clips = clips.to(DEVICE)
-            loss  = combined_loss(model(clips), clips)
+            clips = clips.to(DEVICE, non_blocking=PIN_MEMORY)
             opt.zero_grad()
-            loss.backward()
+            with torch.autocast(device_type=DEVICE, enabled=(DEVICE == "cuda")):
+                loss = combined_loss(model(clips), clips)
+            scaler.scale(loss).backward()
+            scaler.unscale_(opt)
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            opt.step()
+            scaler.step(opt)
+            scaler.update()
             tr_losses.append(loss.item())
             train_bar.set_postfix(loss=f"{loss.item():.5f}",
                                   avg=f"{np.mean(tr_losses):.5f}")
@@ -213,8 +226,9 @@ def train(args):
             val_bar = tqdm(val_dl, desc=f"  Val   {epoch:3d}/{args.epochs}",
                            leave=False, unit="batch")
             for clips in val_bar:
-                clips = clips.to(DEVICE)
-                v     = combined_loss(model(clips), clips).item()
+                clips = clips.to(DEVICE, non_blocking=PIN_MEMORY)
+                with torch.autocast(device_type=DEVICE, enabled=(DEVICE == "cuda")):
+                    v = combined_loss(model(clips), clips).item()
                 vl_losses.append(v)
                 val_bar.set_postfix(loss=f"{v:.5f}",
                                     avg=f"{np.mean(vl_losses):.5f}")
@@ -277,8 +291,8 @@ def train(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train gait autoencoder (normal-only CASIA-B)")
     parser.add_argument("--dataset",  default=str(DATA_DIR))
-    parser.add_argument("--epochs",   type=int,   default=80)
-    parser.add_argument("--patience", type=int,   default=15)
+    parser.add_argument("--epochs",   type=int,   default=20)
+    parser.add_argument("--patience", type=int,   default=8)
     parser.add_argument("--lr",          type=float, default=1e-4)
     parser.add_argument("--num-threads", type=int,   default=12,
                         help="Number of CPU threads for OpenMP/PyTorch (default: 12)")
