@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 DATASET_DIR     = ROOT / "datasets" / "anomalydetectiondatasetucf"
 MODEL_DIR       = ROOT / "models" / "videoMae" / "best_model"
-RESULTS_DIR     = ROOT / "results"
+RESULTS_DIR     = ROOT / "results"/ "videomaeHF_resutls"
 NORMAL_CLASS_ID = 7   # "Normal_Videos_Event" — config.json id2label[7]
 NUM_FRAMES      = 16  # VideoMAE ViT-B expects exactly 16 frames
 
