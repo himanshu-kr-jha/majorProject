@@ -103,20 +103,18 @@ surveillance, false positive reduction, transformer autoencoder
 % ─────────────────────────────────────────────────────────────
 \section{Introduction}
 
-Automated anomaly detection in surveillance footage has evolved from simple
-motion thresholding to deep-learning pipelines capable of recognizing weapons,
-violent actions, and irregular behavior in crowded scenes.
-Single-modality approaches, however, remain brittle: object detectors trigger
-on look-alike objects (phones mistaken for pistols), action classifiers
-mislabel ambiguous postures, and gait models over-flag normal variation.
-Existing studies report false-alarm rates of 15--20\% for object detectors,
-12--18\% for action classifiers, and 18--25\% for gait-based systems when
-operated in isolation~\cite{srilakshmi2025}.
-
-A key insight motivating this work is that \emph{cross-modal disagreement is
-informative}: a weapon detected without any supporting action or gait
-irregularity is most likely a false alarm, whereas weak evidence across
-multiple modalities can together constitute a genuine alert.
+Automated regional anomaly detection in surveillance videos has progressed from
+basic motion thresholding to deep-learning pipelines that identify weapons,
+listening for violent actions and searching for oddities in crowds. Yet
+single-modality systems turn brittle: a pistol detector fires on phones,
+an action classifier confuses an indeterminate posture as an attack, and a
+gait model flags off-normality at the slightest of variations. Recent studies
+point to false-alarm rates of 15-20\% and 12-18\% for action classifiers and
+weapon detectors, and 18-25\% for gait models when running in isolation~\cite{srilakshmi2025}.
+Crucially, we observe that \emph{cross-modal consistency is informative}:
+when an alert is cross-validated across several modalities, the system is more
+confident of a true alarm, whereas an alert from a single modality with no
+corroboration is often a false alarm.
 This observation leads to our core contribution: a \emph{hierarchical
 late-fusion} scheme in which modality outputs vote at four priority levels
 (Critical / High / Medium / Low), augmented by a learned MLP head that
@@ -172,8 +170,8 @@ Road Accidents: 0.61) despite overall accuracy being limited by class
 imbalance~\cite{ucfcrime}.
 
 \subsection{Gait-Based Anomaly Detection}
-CASIA-B~\cite{casiab} with 124 subjects and 11 viewing angles is the
-standard benchmark for silhouette-based gait analysis.
+CASIA-B~\cite{casiab} with 124 subjects and 11 viewpoints is the
+benchmark dataset for silhouette based gait analysis.
 Transformer autoencoders have replaced LSTM-based approaches: self-attention
 captures the periodicity of gait cycles more stably than recurrent units,
 yielding more consistent reconstruction-error thresholds~\cite{veesam2025}.
@@ -436,15 +434,11 @@ YOLOv8n employs a CSPDarknet53 backbone with an anchor-free detection head
 at 640$\times$640 pixel resolution (3.2M parameters).
 The model is fine-tuned on a custom weapon dataset (pistols and knives)
 using Mosaic, MixUp, and random-flip augmentation.
-A \emph{temporal persistence filter} requires confidence $\geq0.60$ in at
-least five consecutive frames before emitting a CRITICAL alert, suppressing
-transient false positives from look-alike objects (e.g., phones, wallets).
+A \emph{temporal persistence filter} needs confidence $\geq0.60$ for five consecutive frames before triggering a CRITICAL alert, ignoring brief false positives from look-alike items (e.g., phones, wallets).
 
 \subsection{Module 2: Action Recognition (VideoMAE)}
 
-The VideoMAE backbone~\cite{tong2022} is a 12-layer ViT-B with 768 hidden
-dimensions and 12 attention heads, pre-trained on Kinetics-400 via masked
-video autoencoding.
+The VideoMAE backbone~\cite{tong2022} is a 12-layer ViT-B with 768 hidden dimension and 12 attention heads, pre-trained on Kinetics-400 using masked video autoencoding.
 Input clips are 16 frames at 224$\times$224 pixels partitioned into
 $2\!\times\!16\!\times\!16$ spatio-temporal patch tokens.
 Fine-tuned on UCF-Crime (14 classes, weighted cross-entropy for class
@@ -811,17 +805,17 @@ at 26--30\% FPR; YOLO-Only records FPR\,=\,0\% but F1\,=\,0.228.}
 
 \subsection{False Positive Analysis}
 
-Table~\ref{tab:fp} shows FP rates across datasets and configurations
-(Fig.~\ref{fig:qualitative} provides representative frames for each decision class).
-YOLO alone on weapon images suffers 43.9\% FPR (no persistence filter);
-on UCF-Crime surveillance footage it drops to 0\% because weapons
-rarely appear in normal-activity videos, confirming it is a safe
+Table~\ref{tab:fp} lists FP rates in various configurations
+(Fig.~\ref{fig:qualitative} shows example images for each decision class).
+Standalone YOLO on weapons has 43.9\% FPR (no persistence filter);
+on UCF-Crime surveillance videos it falls to 0\% because weapons
+have low probability of occurrence in "normal" videos, proving it as a safe
 weapon-specific trigger.
-VideoMAE-Only achieves FPR=16\% on UCF-Crime — the 8 false positives
-are normal videos with high spatio-temporal activity (crowds, traffic).
-The YOLO\,+\,VideoMAE combination maintains FPR=16\% while adding
-weapon-event recall; the Full Rule system trades precision for
-perfect recall (FPR rises to 26\%).
+VideoMAE-Only has FPR=16\% on UCF-Crime - the 8 false positives
+are all videos with intense spatio-temporal motion (crowds, traffic).
+The YOLO+VideoMAE system has FPR=16\% with weapon-event recall
+perfect recall of weapon events; the Full Rule system sacrifices
+perfect recall (FPR=26\%).
 
 \begin{table}[h]
 \caption{False Positive Rate Across System Configurations}
@@ -837,72 +831,71 @@ VideoMAE-Only              & 16.0\% & UCF-Crime\\
 \textbf{YOLO + VideoMAE}   & \textbf{16.0\%} & UCF-Crime\\
 Full System (Rule)         & 26.0\% & UCF-Crime\\
 \bottomrule
-\multicolumn{3}{l}{\footnotesize Full Rule gains R=1.000 at cost of higher FPR.}\\
+\multicolumn{3}{l}{\footnotesize Full Rule: R=1.000 with higher FPR.}\\
 \multicolumn{3}{l}{\footnotesize YOLO-Only: zero FPR on UCF-Crime (no weapons in normal video).}
 \end{tabular}
 \end{table}
 
 \subsection{Qualitative Analysis}
 
-Fig.~\ref{fig:qualitative} shows three representative fusion decisions on
-UCF-Crime test clips (each strip contains four sampled frames with header
+Fig.~\ref{fig:qualitative} illustrates three sample fusion decisions on
+UCF-Crime test clips (four sampled frames with header)
 scores).
-\emph{Arson011} (Fig.~\ref{fig:qualitative}a) is a clear true positive:
-VideoMAE scores 0.9998, gait error 0.067, and both rule and MLP heads emit
+\emph{Arson011} (Fig.~\ref{fig:qualitative}a) is a clear case of a true positive:
+VideoMAE 0.9998, gait error 0.067, rule and MLP heads both HIGH
 HIGH with high confidence.
-\emph{Robbery050} (Fig.~\ref{fig:qualitative}b) illustrates the key fusion
+\emph{Robbery050} (Fig.~\ref{fig:qualitative}b) is the key fusion
 recovery case: VideoMAE scores only 0.910 (below $\tau^*$=0.9654, a miss),
-but the YOLO branch detects a weapon at confidence 0.875 and escalates
-the alert to CRITICAL — a false negative avoided solely through multimodal
+but the YOLO branch identifies a weapon with confidence 0.875 and raises the
+the alert to CRITICAL - a false negative averted only by multimodal
 corroboration.
-\emph{Normal\_Videos\_704} (Fig.~\ref{fig:qualitative}c) is the dominant
-failure mode: a normal corridor scene with moving figures drives VideoMAE to
+\emph{Normal\_Videos\_704} (Fig.~\ref{fig:qualitative}c) is the most common
+failure mode: a normal corridor scene with people moving causes VideoMAE to
 0.987 without any weapon ($c_y$=0.148) or gait anomaly ($s_g$=0.066) to
-corroborate; contrastive fine-tuning on such hard-negative normal clips is a
-planned improvement.
+corroborate; contrastive fine-tuning on such hard-negative normal videos is a
+planned improvement.    
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]%
-  {../results/fusion_results/screenshots/TP-Anomaly_Arson011_x264.jpg}\\[2pt]
+  {./results/fusion_results/screenshots/TP-Anomaly_Arson011_x264.jpg}\\[2pt]
 {\footnotesize\textbf{(a) True Positive — Arson.}\quad
 VideoMAE\,=\,0.9998\,$\gg$\,$\tau^*$=0.9654; gait\,=\,0.067;\
 Rule\,=\,HIGH, MLP\,=\,HIGH.\ All branches agree: Final\,=\,\textbf{HIGH}.}\\[7pt]
 \includegraphics[width=\textwidth]%
-  {../results/fusion_results/screenshots/FN-Anomaly_Robbery050_x264.jpg}\\[2pt]
+  {./results/fusion_results/screenshots/FN-Anomaly_Robbery050_x264.jpg}\\[2pt]
 {\footnotesize\textbf{(b) Fusion Recovery (FN\,$\to$\,CRITICAL) — Robbery.}\quad
 VideoMAE\,=\,0.910\,$<$\,$\tau^*$ (VideoMAE-alone miss), but YOLO weapon
 conf\,=\,0.875\,$\geq$\,0.60 triggers CRITICAL via the rule cascade.
-Without fusion this clip would be an undetected false negative.}\\[7pt]
+Without fusion, this clip would be an undetected false negative.}\\[7pt]
 \includegraphics[width=\textwidth]%
-  {../results/fusion_results/screenshots/FP-Normal_Normal_Videos_704_x264.jpg}\\[2pt]
+  {./results/fusion_results/screenshots/FP-Normal_Normal_Videos_704_x264.jpg}\\[2pt]
 {\footnotesize\textbf{(c) False Positive — Normal corridor scene.}\quad
 VideoMAE\,=\,0.987\,$>$\,$\tau^*$ due to moving figures and camera motion;
 YOLO\,=\,0.148 (no weapon) and gait\,=\,0.066\,$\approx$\,$\tau^*$ provide
 no corroborating signal.
 Contrastive fine-tuning on such high-activity normal videos is a planned
 improvement.}
-\caption{Qualitative fusion decisions on three representative UCF-Crime test
-clips (each strip shows 4 sampled frames; scores from
-\texttt{screenshot\_summary.json}).
-\textbf{(a)} Correct HIGH alert on a clear arson event; VideoMAE score is
+\caption{Qualitative fusion decisions for three sample UCF-Crime test
+videos (4 randomly sampled frames per strip).
+\textbf{(a)} True HIGH alert for a clear arson; the the VideoMAE score is
 near unity.
-\textbf{(b)} Fusion recovery: VideoMAE misses the anomaly (score below
-$\tau^*$=0.9654), but the YOLO branch detects a weapon and escalates to
-\textsc{Critical} — demonstrating the value of cross-modal corroboration.
-\textbf{(c)} Residual false positive: a normal corridor scene with walking
-figures drives VideoMAE above threshold without weapon or gait corroboration.}
+\textbf{(b)} Fusion recovery: VideoMAE fails to detect an anomaly (score below
+$\tau^*$0.9654), but the YOLO branch spots a weapon and raises to
+\textsc{Critical}, showing the importance of corroboration.
+\textbf{(c)} Fig.~\ref{fig:pr} shows the precision-recall plot for YOLOv8n weapon
+figures causing VideoMAE to exceed the threshold without weapon or human gait corroboration.}
 \label{fig:qualitative}
 \end{figure*}
 
 \subsection{Comparison with Prior Work}
 
-Table~\ref{tab:compare} positions Gait-YOLO against related systems.
-Although single-modality precision figures from prior work may exceed ours
-(e.g., Ingle \& Kim report 97.5\% for guns), those systems do not address
-the holistic false-alarm problem.
-Our MLP fusion delivers an order-of-magnitude lower FP rate than any
-single-modality approach while maintaining competitive detection accuracy.
+Table~\ref{tab:compare} compares Gait-YOLO to other systems.
+While single-modality precision reports are higher than ours (e.g., Ingle \& Kim report 97.5\% for guns), those systems do not address false-alarm problems.
+(e.g., Ingle \& Kim report 97.5\% for guns), these do not tackle
+the global false-alarm problem.
+Our MLP fusion system is an order of magnitude reduction in FP
+single-modality method, with comparable detection accuracy.
 
 \begin{table}[h]
 \caption{Comparison with Prior Multi-Modal Surveillance Systems}
@@ -924,10 +917,10 @@ Srilakshmi et al.~\cite{srilakshmi2025} & Multi          & ---       & 15\%\\
 
 \subsection{Precision–Recall Curves}
 
-Fig.~\ref{fig:pr} shows the precision–recall curves for YOLOv8n weapon
+Fig.~\ref{fig:pr} presents the precision-recall (PR) curves of YOLOv8n
 detection.
-Knife maintains higher precision at equal recall levels, confirming its
-reliability as the primary CRITICAL-alert trigger.
+Knife has higher precision at a given recall, confirming it as
+as the trigger for the CRITICAL alert.
 
 \begin{figure}[t]
 \centering
@@ -1039,102 +1032,103 @@ best F1, or Full Rule for zero missed anomalies.
 A key practical finding is the systematic mismatch between simulated gait
 score distributions (mean $\approx$ 0.43) and real CASIA-B scores
 (mean $\approx$ 0.063).
-This arises because silhouette images are $\approx$95\% black pixels,
-making both MSE and SSIM inherently small regardless of motion pattern.
-After recalibration ($\tau^*=0.0642$) the gait module achieves F1=0.792
-and contributes meaningfully to fusion decisions via the MEDIUM branch.
+This is due to silhouette images being $\approx$95\% black pixels,
+and ensuring small MSE and SSIM no matter the motion pattern.
+The gait module, after recalibration ($\tau^*=0.0642$) has F1=0.792
+and can contribute substantially to the fusion via the MEDIUM branch.
 
 \textbf{Limitations.}
-VideoMAE has FPR=16\% on normal UCF-Crime videos — high-activity normal
-scenes (crowded intersections, sports) are mis-classified as anomalous.
-A dedicated normal-vs-anomaly fine-tuning regime using contrastive loss
-on UCF-Crime is planned to address this.
-The gait module achieves F1=0.792; fine-tuning on labeled abnormal
-examples (carrying, disguise) from CASIA-B is expected to push F1 above 0.85.
-Deployment currently requires a server-grade GPU; INT8 quantization with
-TensorRT is planned for edge devices (NVIDIA Jetson Orin/Xavier).
-Section~\ref{sec:future} elaborates on these limitations and presents
-five research directions that address them systematically.
+VideoMAE has FPR=16\% on normal UCF-Crime videos - crowded scenes (intersections,
+with busy normal events (crowds, sport) mis-classed as anomalous.
+We plan to have a fine-tuning stage on normal-vs-abnormal
+on UCF-Crime should resolve this.
+The gait module reaches F1=0.792; fine-tuning on labeled abnormal
+data (carrying, disguise) from CASIA-B should produce an F1 greater than 0.85.
+The current deployment is on a server-grade GPU; INT8 quantization with
+TensorRT for edge devices (NVIDIA Jetson Orin/Xavier) is planned.
+Section~\ref{sec:future} discusses these issues and proposes
+five directions that address them comprehensively.
 
 % ─────────────────────────────────────────────────────────────
 \section{Future Work}\label{sec:future}
 
-The experimental evaluation of Gait-YOLO has exposed several concrete
-limitations that define actionable research trajectories.  We outline
-five directions, each grounded in specific failure modes observed in
+The testing of Gait-YOLO has identified a number of practical
+areas that provide concrete directions for research.  We outline
+five opportunities, each based on distinctive failure modes from
 the preceding analysis.
 
 \subsection{Online Threshold Adaptation for Deployment Robustness}
 
-As demonstrated in the gait module deployment (\S\ref{sec:results}),
-score distributions on real target data can deviate substantially from
-offline calibration assumptions --- real CASIA-B scores cluster near
-0.063 whereas simulated thresholds assumed 0.43, producing complete
-detection failure until manual recalibration.
-Streaming quantile estimators~\cite{greenwald2001} and Bayesian
-threshold updating~\cite{adams2007} offer principled mechanisms for
-adapting decision boundaries as the system observes deployment data in
-real time.  Integrating such online calibration would enable Gait-YOLO
-to self-adjust across heterogeneous camera environments, lighting
-conditions, and scene contexts without operator intervention ---
-directly addressing what our experiments reveal as the single most
-critical failure mode in reconstruction-based anomaly detectors.
+As we show with the gait module deployment (\S\ref{sec:results}),
+the real target data score distribution may be significantly different from
+offline assumptions (coverage plots for CASIA-B data show)
+0.063 while simulation assumed 0.43, resulting in total failure to
+total failure until recalibration.
+Online quantile updates~\cite{greenwald2001} and Bayesian
+threshold updating~\cite{adams2007} provide principled ways of
+adjusting the decision boundaries as the system sees data during use
+real time.  Incorporation of such online trained decision boundaries would allow Gait-YOLO
+to automatically adapt to diverse camera configurations, lighting
+lighting, and scene content without user intervention, alleviating what these experiments reveal is the most critical point
+breaking the single most important limitation found in our
+most common problem when using reconstruction-based detectors.
 
-\subsection{Pose-Skeleton and Optical Flow Based Gait Representation}
+\subsection{Pose-Skeleton and Optical Flow-Based Gait Representation}
 
-The current gait autoencoder operates on binary silhouette sequences
-that are inherently sparse (approximately 95\% black pixels in
-CASIA-B), causing reconstruction error scores to be bounded by
-silhouette darkness rather than motion pattern content.  This
-fundamentally limits inter-class separability to $1.7\sigma$ and
+The current gait autoencoder uses binary skeletal silhouettes
+that are sparse (95\% black pixels for CASIA-B
+CASIA-B), thus limiting the potential scores of reconstruction errors
+shell darkness, not shape or motion.  This
+gives a fundamental limit on separability of $1.7\sigma$ and
 caps gait F1 at 0.792.
-Replacing silhouette-based reconstruction with pose-skeleton sequences
-derived from keypoint detectors such as HRNet~\cite{sun2019hrnet},
-or with dense optical flow fields computed between consecutive frames,
-would encode motion geometry and velocity directly.  These
-representations are invariant to silhouette sparsity and are expected
-to increase inter-class separation substantially, enabling the gait
-branch to function as a stronger primary detector rather than purely a
+Substituting silhouettes for pose-skeleton predictions
+based on pose-skeleton estimation networks like HRNet~\cite{sun2019hrnet},
+or with dense optical flow fields between frames,
+would explicitly represent motion geometry and motion velocity.  These
+representations are independent to the sparsity of the silhouette;
+to significantly improve the margin between classes and allow the
+branch to be a better primary detector, rather than simply
 corroborative signal.
+
 
 \subsection{Cross-Modal Attention Feedback Between Branches}
 
-The parallel architecture processes all three modalities independently,
-with no inter-branch communication until the final fusion stage.
-High-confidence signals in one branch therefore provide no dynamic
-influence over the sensitivity of the other branches during inference.
-Cross-modal attention mechanisms~\cite{tsai2019multimodal} offer a
-principled solution: the confidence output of each branch could
-dynamically re-weight the feature extraction or threshold sensitivity
-of the remaining branches within the same temporal window.  For
-example, a high-confidence weapon detection by YOLO could lower the
-anomaly score threshold for VideoMAE and gait within that clip,
-enabling the system to respond to corroborating weak evidence that
-would otherwise fall below individual branch thresholds.  This
-represents a shift from score-level fusion to feature-level
-cross-modal interaction, aligning the system more closely with human
+Parallel processing of the three modalities occurs in isolation,
+without communication between branches until the end.
+Therefore sensitivity of the branches cannot be affected by
+control over the sensitivity of other branches during inference.
+Multimodal attention mechanisms~\cite{tsai2019multimodal} provide a
+sensible approach: the sensitivity of each branch could
+could adaptively weight the weights or the threshold
+of the other branches in the same time window.  For
+for instance, a high-confidence weapon detection by YOLO could reduce the
+the anomaly score threshold of VideoMAE and gait for that clip,
+allowing it to react to supportive weak evidence that
+would be disregarded when using branch by branch integration.  This
+is a shift from score- to feature-level
+fusion, bringing the system in line with human
 attentional reasoning in threat
 assessment~\cite{vaswani2017attention}.
 
 \subsection{Long-Term Temporal Memory for Behavioral Escalation}
 
-Gait-YOLO currently operates at the clip level, with each 16-frame
-inference window treated independently and no information carried
-across successive clips.  This architecture cannot model gradual
-behavioral escalation --- a common pattern in real criminal events
-where suspicious behavior builds over minutes before a crime
+Gait-YOLO inference is currently done on a clip-by-clip
+inference window, with no temporal memory.
+across successive clips.  It cannot capture progressive
+escalation - prevalent in real-life crimes
+in which anomalous behavior ramps up for several minutes
 occurs~\cite{ucfcrime}.
-Integrating a recurrent temporal memory module, implemented as an
-LSTM~\cite{hochreiter1997lstm} or a Transformer decoder operating
-over rolling fusion score vectors~\cite{dai2019transformerxl}, would
-maintain an evolving suspicion state across extended observation
+Integrating a recurrent temporal memory with an
+LSTM~\cite{hochreiter1997lstm} or a Transformer decoder with
+operating over rolling fusion score vectors~\cite{dai2019transformerxl}, would
+store a dynamic level of suspicion over time
 windows.  This would allow the system to accumulate weak but
 consistent anomaly signals over time, flagging situations where no
 single clip crosses an alert threshold but the aggregate pattern
-across several minutes indicates genuine threat --- particularly
-relevant for covert anomaly classes such as Shoplifting
-(R\,=\,0.952) and Robbery (R\,=\,0.800), which exhibit low
-per-clip anomaly signal but sustained behavioral deviation.
+across several minutes indicates a genuine threat—particularly
+relevant for covert anomaly classes such as shoplifting
+(R\,=\,0.952) and robbery (R\,=\,0.800), which exhibit low
+per-clip anomaly signals but sustained behavioral deviation.
 
 
 \subsection{Person Re-Identification Across Camera Networks}
