@@ -53,19 +53,19 @@
 \IEEEauthorblockA{\textit{Dept. of  Software Engineering}\\
 \textit{Delhi Technological University}
 \\Delhi, India\\
-himanshukumarjha\_se22a11\_62@dtu.ac.in}
+himanshukrjha004@gmail.com}
 \and
 \IEEEauthorblockN{Ketan Anand}
 \IEEEauthorblockA{\textit{Dept. of  Software Engineering}\\
 \textit{Delhi Technological University}
 \\Delhi, India\\
-author2@university.edu}
+ketananand0110@gmail.com}
 \and
 \IEEEauthorblockN{Rahul}
 \IEEEauthorblockA{\textit{Dept. of  Software Engineering}\\
 \textit{Delhi Technological University}
 \\Delhi, India\\
-author3@university.edu}
+rahul@dtu.ac.in}
 }
 
 \maketitle
@@ -142,6 +142,8 @@ Section~\ref{sec:related} reviews related work.
 Section~\ref{sec:method} describes the system architecture.
 Section~\ref{sec:exp} details the experimental setup.
 Section~\ref{sec:results} presents quantitative results and ablation.
+Section~\ref{sec:future} outlines five concrete future research
+directions motivated by the observed limitations.
 Section~\ref{sec:conc} concludes.
 
 % ─────────────────────────────────────────────────────────────
@@ -981,7 +983,15 @@ fixed threshold.
   tick label style={font=\scriptsize},
   label style={font=\scriptsize},
   xtick={0.055,0.060,0.065,0.070,0.075,0.080,0.085,0.090},
-  xticklabel style={rotate=30,anchor=east},
+  % Add scaled x ticks=false here to remove the 10^-2
+  scaled x ticks=false,
+  % Force fixed format so it prints as 0.055, 0.060, etc.
+  xticklabel style={
+      /pgf/number format/fixed,
+      /pgf/number format/precision=3,
+      rotate=30, 
+      anchor=east
+  },
 ]
 \addplot[blue, thick, domain=0.050:0.092, samples=150]
   { exp(-0.5*((x-0.0632)/0.0039)^2) / (0.0039*2.5066) * 0.003 };
@@ -1043,6 +1053,110 @@ The gait module achieves F1=0.792; fine-tuning on labeled abnormal
 examples (carrying, disguise) from CASIA-B is expected to push F1 above 0.85.
 Deployment currently requires a server-grade GPU; INT8 quantization with
 TensorRT is planned for edge devices (NVIDIA Jetson Orin/Xavier).
+Section~\ref{sec:future} elaborates on these limitations and presents
+five research directions that address them systematically.
+
+% ─────────────────────────────────────────────────────────────
+\section{Future Work}\label{sec:future}
+
+The experimental evaluation of Gait-YOLO has exposed several concrete
+limitations that define actionable research trajectories.  We outline
+five directions, each grounded in specific failure modes observed in
+the preceding analysis.
+
+\subsection{Online Threshold Adaptation for Deployment Robustness}
+
+As demonstrated in the gait module deployment (\S\ref{sec:results}),
+score distributions on real target data can deviate substantially from
+offline calibration assumptions --- real CASIA-B scores cluster near
+0.063 whereas simulated thresholds assumed 0.43, producing complete
+detection failure until manual recalibration.
+Streaming quantile estimators~\cite{greenwald2001} and Bayesian
+threshold updating~\cite{adams2007} offer principled mechanisms for
+adapting decision boundaries as the system observes deployment data in
+real time.  Integrating such online calibration would enable Gait-YOLO
+to self-adjust across heterogeneous camera environments, lighting
+conditions, and scene contexts without operator intervention ---
+directly addressing what our experiments reveal as the single most
+critical failure mode in reconstruction-based anomaly detectors.
+
+\subsection{Pose-Skeleton and Optical Flow Based Gait Representation}
+
+The current gait autoencoder operates on binary silhouette sequences
+that are inherently sparse (approximately 95\% black pixels in
+CASIA-B), causing reconstruction error scores to be bounded by
+silhouette darkness rather than motion pattern content.  This
+fundamentally limits inter-class separability to $1.7\sigma$ and
+caps gait F1 at 0.792.
+Replacing silhouette-based reconstruction with pose-skeleton sequences
+derived from keypoint detectors such as HRNet~\cite{sun2019hrnet},
+or with dense optical flow fields computed between consecutive frames,
+would encode motion geometry and velocity directly.  These
+representations are invariant to silhouette sparsity and are expected
+to increase inter-class separation substantially, enabling the gait
+branch to function as a stronger primary detector rather than purely a
+corroborative signal.
+
+\subsection{Cross-Modal Attention Feedback Between Branches}
+
+The parallel architecture processes all three modalities independently,
+with no inter-branch communication until the final fusion stage.
+High-confidence signals in one branch therefore provide no dynamic
+influence over the sensitivity of the other branches during inference.
+Cross-modal attention mechanisms~\cite{tsai2019multimodal} offer a
+principled solution: the confidence output of each branch could
+dynamically re-weight the feature extraction or threshold sensitivity
+of the remaining branches within the same temporal window.  For
+example, a high-confidence weapon detection by YOLO could lower the
+anomaly score threshold for VideoMAE and gait within that clip,
+enabling the system to respond to corroborating weak evidence that
+would otherwise fall below individual branch thresholds.  This
+represents a shift from score-level fusion to feature-level
+cross-modal interaction, aligning the system more closely with human
+attentional reasoning in threat
+assessment~\cite{vaswani2017attention}.
+
+\subsection{Long-Term Temporal Memory for Behavioral Escalation}
+
+Gait-YOLO currently operates at the clip level, with each 16-frame
+inference window treated independently and no information carried
+across successive clips.  This architecture cannot model gradual
+behavioral escalation --- a common pattern in real criminal events
+where suspicious behavior builds over minutes before a crime
+occurs~\cite{ucfcrime}.
+Integrating a recurrent temporal memory module, implemented as an
+LSTM~\cite{hochreiter1997lstm} or a Transformer decoder operating
+over rolling fusion score vectors~\cite{dai2019transformerxl}, would
+maintain an evolving suspicion state across extended observation
+windows.  This would allow the system to accumulate weak but
+consistent anomaly signals over time, flagging situations where no
+single clip crosses an alert threshold but the aggregate pattern
+across several minutes indicates genuine threat --- particularly
+relevant for covert anomaly classes such as Shoplifting
+(R\,=\,0.952) and Robbery (R\,=\,0.800), which exhibit low
+per-clip anomaly signal but sustained behavioral deviation.
+
+
+\subsection{Person Re-Identification Across Camera Networks}
+
+Gait-YOLO operates as a single-camera system with no mechanism for
+linking observations of the same individual across multiple camera
+feeds.  In practice, CCTV infrastructures consist of overlapping and
+non-overlapping camera networks; a flagged individual who exits one
+camera's field of view and enters another is treated as an entirely
+new subject with all accumulated suspicion context reset.
+Person re-identification using appearance embeddings and gait
+signatures as a soft biometric~\cite{ye2021deep} --- leveraging the
+gait autoencoder's learned latent representations as a
+camera-view-invariant identity descriptor --- would enable
+network-level threat tracking.  A subject flagged as anomalous on
+one camera could be continuously monitored across the entire
+surveillance network, substantially extending the system's
+operational scope.  Recent advances in view-invariant gait
+recognition~\cite{chao2019gaitset} suggest that the 512-dimensional
+latent space learned by our CNN--Transformer encoder already captures
+discriminative identity features suitable for cross-view matching.
+
 
 % ─────────────────────────────────────────────────────────────
 \section{Conclusion}\label{sec:conc}
@@ -1062,14 +1176,11 @@ simulation-derived 0.4521) is a practically critical contribution:
 deploying checkpoints trained on synthetic score distributions with
 hardcoded thresholds produces effectively dead MEDIUM/LOW alert branches
 at real deployment time.
-The modular architecture supports future extension with skeleton-pose
-estimation, self-supervised continuous learning, and explainable attention
-heatmaps without modifying the fusion layer.
-
-% ─────────────────────────────────────────────────────────────
-\section*{Acknowledgment}
-The authors thank the maintainers of the CASIA-B, UCF-Crime, and
-Guns \& Knives Kaggle datasets for making their data publicly available.
+The modular architecture supports five concrete future extensions
+(Section~\ref{sec:future}), including online threshold adaptation,
+pose-skeleton gait representations, cross-modal attention feedback,
+long-term temporal memory, and person re-identification across camera
+networks --- none of which require changes to the core fusion layer.
 
 % ─────────────────────────────────────────────────────────────
 \begin{thebibliography}{00}
@@ -1106,11 +1217,6 @@ P.~Khaire and R.~Kumar,
 ``CNN-BiLSTM autoencoder for ATM anomaly detection with RGB-D,''
 \textit{Proc.\ ICCV}, 2022.
 
-\bibitem{yang2023}
-H.~Yang \textit{et al.},
-``Pose and object detection for anomaly benchmarks BMbD/M-BMbD,''
-\textit{Proc.\ CVPR}, 2023.
-
 \bibitem{veesam2025}
 K.~Veesam \textit{et al.},
 ``Graph attention transformer RNN for hybrid surveillance architectures,''
@@ -1138,6 +1244,55 @@ K.~Srithi,
 ``Guns and knives detection in CCTV videos,''
 Kaggle, 2023. [Online]. Available:
 \url{https://www.kaggle.com/datasets/kruthisb999/guns-and-knifes-detection-in-cctv-videos}
+
+%% ── Future Work references ────────────────────────────────────
+
+\bibitem{greenwald2001}
+M.~Greenwald and S.~Khanna,
+``Space-efficient online computation of quantile summaries,''
+in \textit{Proc.\ ACM SIGMOD}, pp.~58--66, 2001.
+
+\bibitem{adams2007}
+R.~P.~Adams and D.~J.~C.~MacKay,
+``Bayesian online changepoint detection,''
+arXiv preprint arXiv:0710.3742, 2007.
+
+\bibitem{sun2019hrnet}
+K.~Sun \textit{et al.},
+``Deep high-resolution representation learning for visual recognition,''
+in \textit{Proc.\ IEEE/CVF CVPR}, pp.~5693--5703, 2019.
+
+\bibitem{tsai2019multimodal}
+Y.-H.~H.~Tsai \textit{et al.},
+``Multimodal transformer for unaligned multimodal language sequences,''
+in \textit{Proc.\ ACL}, pp.~6558--6569, 2019.
+
+\bibitem{vaswani2017attention}
+A.~Vaswani \textit{et al.},
+``Attention is all you need,''
+in \textit{Adv.\ Neural Inf.\ Process.\ Syst.\ (NeurIPS)}, vol.~30,
+pp.~5998--6008, 2017.
+
+\bibitem{hochreiter1997lstm}
+S.~Hochreiter and J.~Schmidhuber,
+``Long short-term memory,''
+\textit{Neural Computation}, vol.~9, no.~8, pp.~1735--1780, 1997.
+
+\bibitem{dai2019transformerxl}
+Z.~Dai \textit{et al.},
+``Transformer-XL: Attentive language models beyond a fixed-length context,''
+in \textit{Proc.\ ACL}, pp.~2978--2988, 2019.
+
+\bibitem{ye2021deep}
+M.~Ye \textit{et al.},
+``Deep learning for person re-identification: A survey and outlook,''
+\textit{IEEE Trans.\ Pattern Anal.\ Mach.\ Intell.}, vol.~44, no.~6,
+pp.~2872--2893, 2022.
+
+\bibitem{chao2019gaitset}
+H.~Chao \textit{et al.},
+``GaitSet: Regarding gait as a set for cross-view gait recognition,''
+in \textit{Proc.\ AAAI}, vol.~33, pp.~8126--8133, 2019.
 
 \end{thebibliography}
 
