@@ -72,27 +72,7 @@ rahul@dtu.ac.in}
 
 % ─────────────────────────────────────────────────────────────o
 \begin{abstract}
-Modern CCTV surveillance systems suffer from high false-alarm rates
-(15--25\% per modality) when relying on a single detection stream.
-We present \textbf{Gait-YOLO}, a parallel three-branch anomaly detection
-framework that simultaneously processes
-(1)~YOLOv8n object detection for weapon identification,
-(2)~VideoMAE action recognition for violent behavior classification, and
-(3)~a CNN--Transformer autoencoder for gait anomaly scoring.
-The three streams are merged through a two-level fusion layer: a
-rule-based hierarchical cascade followed by a lightweight MLP
-(3$\to$32$\to$16$\to$4) that jointly learns cross-modal decision boundaries.
-Evaluated on real datasets — 324 weapon images (Guns \& Knives), 600 CASIA-B
-silhouette sequences, and 190 UCF-Crime videos — the system achieves
-mAP@0.5\,=\,0.724 on weapon detection, Gait\,F1\,=\,0.792 after
-data-calibrated threshold optimization, and VideoMAE action recognition
-F1\,=\,0.965 (AUC-ROC\,=\,0.980) on UCF-Crime.
-The hierarchical fusion achieves \textbf{perfect recall (1.000)} via a
-MEDIUM branch that recovers VideoMAE false negatives through gait
-corroboration, while the YOLO branch delivers precision 1.000 for
-weapon-specific events at 35\,FPS.
-The best overall configuration (YOLO\,+\,VideoMAE) achieves
-F1\,=\,0.969 while running at 15\,FPS on commodity GPU hardware.
+Traditional single-stream CCTV setups frequently struggle with high false-alarm rates, often hitting 15 to 25\% depending on the modality. To tackle this, we developed Gait-YOLO, a three-branch anomaly detection framework designed to process multiple video streams in parallel. The system simultaneously runs YOLOv8n to identify weapons, VideoMAE to classify violent behavior, and a CNN-Transformer autoencoder to score gait anomalies. Rather than keeping these outputs isolated, we integrate them using a two-tier fusion layer. This setup relies on a rule-based hierarchical cascade that feeds into a lightweight MLP ($3 \rightarrow 32 \rightarrow 16 \rightarrow 4$), allowing the model to jointly learn the decision boundaries across all three modalities. We evaluated the framework on real-world data, including 324 weapon images of guns and knives, 600 silhouette sequences from CASIA-B, and 190 UCF-Crime videos. The performance is highly competitive: weapon detection reached an mAP@0.5 of 0.724, and the gait stream achieved an F1 score of 0.792 after optimizing the data-calibrated threshold. Action recognition via VideoMAE performed exceptionally well on UCF-Crime, securing an F1 of 0.965 alongside an AUC-ROC of 0.980. Notably, our hierarchical fusion approach achieves perfect recall (1.000). It manages this through a specialized MEDIUM branch that leverages gait corroboration to catch false negatives originally missed by VideoMAE. At the same time, the dedicated YOLO stream maintains a flawless 1.000 precision for weapon-specific events while running at 35 FPS. For optimal overall performance, combining the YOLO and VideoMAE streams yields an F1 score of 0.969 and runs at a steady 15 FPS on standard commodity GPU hardware.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -104,13 +84,13 @@ surveillance, false positive reduction, transformer autoencoder
 \section{Introduction}
 
 Automated regional anomaly detection in surveillance videos has progressed from
-basic motion thresholding to deep-learning pipelines that identify weapons,
-listening for violent actions and searching for oddities in crowds. Yet
+basic motion thresholding to deep learning pipelines that identify weapons,
+listen for violent actions, and search for oddities in crowds. Yet
 single-modality systems turn brittle: a pistol detector fires on phones,
 an action classifier confuses an indeterminate posture as an attack, and a
-gait model flags off-normality at the slightest of variations. Recent studies
+gait model flags abnormality at the slightest of variations. Recent studies
 point to false-alarm rates of 15-20\% and 12-18\% for action classifiers and
-weapon detectors, and 18-25\% for gait models when running in isolation~\cite{srilakshmi2025}.
+weapon detectors and 18-25\% for gait models when running in isolation~\cite{srilakshmi2025}.
 Crucially, we observe that \emph{cross-modal consistency is informative}:
 when an alert is cross-validated across several modalities, the system is more
 confident of a true alarm, whereas an alert from a single modality with no
@@ -123,7 +103,7 @@ refines the rule-based decision boundary.
 We make the following contributions:
 \begin{enumerate}
   \item A real-time three-branch architecture (YOLO + VideoMAE + Gait-AE)
-        running at 18--22\,FPS on a single NVIDIA T4 GPU via asynchronous
+        running at 18--22\, FPS on a single NVIDIA T4 GPU via asynchronous
         inference scheduling.
   \item A data-calibrated threshold optimization procedure that corrects the
         gait anomaly score scale mismatch between training simulations and
@@ -210,56 +190,60 @@ four alert levels.
 
 \begin{figure}[t]
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[node distance=0.45cm and 0.4cm]
+\tikzset{
+  block/.style={rectangle, draw, align=center, rounded corners=3pt, font=\small, fill=blue!15, minimum height=0.7cm, minimum width=2.5cm},
+  proc/.style={rectangle, draw, align=center, rounded corners=3pt, font=\small, fill=gray!15, minimum height=0.7cm},
+  mlpbox/.style={rectangle, draw, align=center, rounded corners=3pt, font=\footnotesize, fill=yellow!25, minimum height=0.6cm, minimum width=2cm},
+  alert/.style={rectangle, draw, align=center, rounded corners=3pt, font=\small\bfseries, minimum width=1.8cm, minimum height=0.6cm},
+  arr/.style={-stealth, thick}
+}
 
-  \node[block, fill=gray!15, minimum width=4cm] (input)
-      {Live CCTV Video Stream};
-  \node[proc, below=of input, minimum width=4cm] (preproc)
-      {Frame Extraction \& Preprocessing};
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=0.5cm and 0.5cm]
+
+  % 1. Input & Preprocessing
+  \node[proc, minimum width=5cm] (input) {Live CCTV Video Stream};
+  \node[proc, below=0.4cm of input, minimum width=5cm] (preproc) {Frame Extraction \& Preprocessing};
   \draw[arr] (input) -- (preproc);
 
-  \node[block, fill=blue!15, below left=0.6cm and 1.4cm of preproc]
-      (b1) {YOLOv8n\\(every frame)};
-  \node[block, fill=blue!15, below=0.6cm of preproc]
-      (b2) {VideoMAE\\(every 4th)};
-  \node[block, fill=blue!15, below right=0.6cm and 1.4cm of preproc]
-      (b3) {Gait-AE\\(every 4th)};
+  % 2. Processing Branches (Anchored from the center node for symmetry)
+  \node[block, below=0.7cm of preproc] (b2) {VideoMAE\\(every 4th)};
+  \node[block, left=0.6cm of b2] (b1) {YOLOv8n\\(every frame)};
+  \node[block, right=0.6cm of b2] (b3) {Gait-AE\\(every 4th)};
 
-  \draw[arr] (preproc.south) -- ++(0,-0.15) -| (b1.north);
+  % Distribution Arrows
+  \draw[arr] (preproc.south) -- ++(0,-0.2) -| (b1.north);
   \draw[arr] (preproc.south) -- (b2.north);
-  \draw[arr] (preproc.south) -- ++(0,-0.15) -| (b3.north);
+  \draw[arr] (preproc.south) -- ++(0,-0.2) -| (b3.north);
 
-  \node[mlpbox, fill=yellow!25, below=0.35cm of b1]
-      (c1) {conf $\geq$ 0.60};
-  \node[mlpbox, fill=yellow!25, below=0.35cm of b2]
-      (c2) {score $\geq$ 0.965};
-  \node[mlpbox, fill=yellow!25, below=0.35cm of b3]
-      (c3) {err $>$ $\tau^*$};
+  % 3. Thresholds / Conditions
+  \node[mlpbox, below=0.4cm of b1] (c1) {conf $\geq$ 0.60};
+  \node[mlpbox, below=0.4cm of b2] (c2) {score $\geq$ 0.965};
+  \node[mlpbox, below=0.4cm of b3] (c3) {err $>$ $\tau^*$};
 
-  \draw[arr] (b1)--(c1); \draw[arr] (b2)--(c2); \draw[arr] (b3)--(c3);
+  \draw[arr] (b1) -- (c1);
+  \draw[arr] (b2) -- (c2);
+  \draw[arr] (b3) -- (c3);
 
-  \node[proc, fill=purple!15, below=0.65cm of b2, yshift=-0.8cm,
-        minimum width=5.5cm, minimum height=0.8cm]
-      (fusion) {Rule Cascade + MLP Fusion Head};
+  % 4. Fusion Layer
+  \node[proc, fill=purple!15, below=0.8cm of c2, minimum width=7.2cm] (fusion) {Rule Cascade + MLP Fusion Head};
 
-  \draw[arr] (c1.south) -- ++(0,-0.12) -| (fusion.north west);
+  % Entering Fusion Layer (Explicit xshifts to avoid clipping rounded corners)
+  \draw[arr] (c1.south) -- ++(0,-0.25) -| ([xshift=-2.4cm]fusion.north);
   \draw[arr] (c2.south) -- (fusion.north);
-  \draw[arr] (c3.south) -- ++(0,-0.12) -| (fusion.north east);
+  \draw[arr] (c3.south) -- ++(0,-0.25) -| ([xshift=2.4cm]fusion.north);
 
-  \node[alert, fill=red!35,    below left=0.5cm and 2.2cm of fusion]
-      (cr) {CRITICAL};
-  \node[alert, fill=orange!45, below left=0.5cm and 0.5cm of fusion]
-      (hi) {HIGH};
-  \node[alert, fill=yellow!55, below right=0.5cm and 0.5cm of fusion]
-      (me) {MEDIUM};
-  \node[alert, fill=green!35,  below right=0.5cm and 2.2cm of fusion]
-      (lo) {LOW};
+  % 5. Alert Outputs (Symmetrically spaced out)
+  \node[alert, fill=red!35, below=0.7cm of fusion, xshift=-2.85cm] (cr) {CRITICAL};
+  \node[alert, fill=orange!45, below=0.7cm of fusion, xshift=-0.95cm] (hi) {HIGH};
+  \node[alert, fill=yellow!55, below=0.7cm of fusion, xshift=0.95cm] (me) {MEDIUM};
+  \node[alert, fill=green!35, below=0.7cm of fusion, xshift=2.85cm] (lo) {LOW};
 
-  \draw[arr] (fusion.south) -- ++(0,-0.12) -| (cr.north);
-  \draw[arr] (fusion.south) -- ++(0,-0.12) -| (hi.north);
-  \draw[arr] (fusion.south) -- ++(0,-0.12) -| (me.north);
-  \draw[arr] (fusion.south) -- ++(0,-0.12) -| (lo.north);
+  % Exiting Fusion Layer
+  \draw[arr] (fusion.south) -- ++(0,-0.2) -| (cr.north);
+  \draw[arr] (fusion.south) -- ++(0,-0.2) -| (hi.north);
+  \draw[arr] (fusion.south) -- ++(0,-0.2) -| (me.north);
+  \draw[arr] (fusion.south) -- ++(0,-0.2) -| (lo.north);
 
 \end{tikzpicture}}
 \caption{High-level architecture of Gait-YOLO. Three parallel branches
@@ -858,18 +842,18 @@ planned improvement.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]%
-  {./results/fusion_results/screenshots/TP-Anomaly_Arson011_x264.jpg}\\[2pt]
+  {../results/fusion_results/screenshots/TP-Anomaly_Arson011_x264.jpg}\\[2pt]
 {\footnotesize\textbf{(a) True Positive — Arson.}\quad
 VideoMAE\,=\,0.9998\,$\gg$\,$\tau^*$=0.9654; gait\,=\,0.067;\
 Rule\,=\,HIGH, MLP\,=\,HIGH.\ All branches agree: Final\,=\,\textbf{HIGH}.}\\[7pt]
 \includegraphics[width=\textwidth]%
-  {./results/fusion_results/screenshots/FN-Anomaly_Robbery050_x264.jpg}\\[2pt]
+  {../results/fusion_results/screenshots/FN-Anomaly_Robbery050_x264.jpg}\\[2pt]
 {\footnotesize\textbf{(b) Fusion Recovery (FN\,$\to$\,CRITICAL) — Robbery.}\quad
 VideoMAE\,=\,0.910\,$<$\,$\tau^*$ (VideoMAE-alone miss), but YOLO weapon
 conf\,=\,0.875\,$\geq$\,0.60 triggers CRITICAL via the rule cascade.
 Without fusion, this clip would be an undetected false negative.}\\[7pt]
 \includegraphics[width=\textwidth]%
-  {./results/fusion_results/screenshots/FP-Normal_Normal_Videos_704_x264.jpg}\\[2pt]
+  {../results/fusion_results/screenshots/FP-Normal_Normal_Videos_704_x264.jpg}\\[2pt]
 {\footnotesize\textbf{(c) False Positive — Normal corridor scene.}\quad
 VideoMAE\,=\,0.987\,$>$\,$\tau^*$ due to moving figures and camera motion;
 YOLO\,=\,0.148 (no weapon) and gait\,=\,0.066\,$\approx$\,$\tau^*$ provide
