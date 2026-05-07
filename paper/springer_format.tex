@@ -356,7 +356,7 @@ Full Rule        & 0.915 & \textbf{1.000} & 0.956 & 0.260 & 20.0\\
 \addlegendentry{FPR}
 \end{axis}
 \end{tikzpicture}
-\caption{F1 and FPR across the seven ablation configurations on UCF-Crime ($n = 190$). Y+M (YOLO + VideoMAE) is the best F1 (0.969) at FPR = 16\%; Full Rule and Full MLP attain perfect recall at higher FPR
+\caption{F1 and FPR across the seven ablation configurations on UCF-Crime ($n = 190$). Y+M (YOLO + VideoMAE) is the best F1 (0.969) at FPR = 16\%; Full Rule and Full MLP attain perfect recall at higher FPR.}
 \label{fig:ablation_bar}
 \end{figure}
 
@@ -440,7 +440,7 @@ The failure analysis points to five concrete extensions. (1) \textbf{Online thre
 
 \section{Conclusion}\label{sec:conc}
 
-Gait-YOLO pairs object detection, action recognition, and gait analysis through a hierarchical rule cascade and a small learned MLP head. On the three benchmarks we tested against the per-branch numbers are F1 = 0.965 (VideoMAE), F1 = 0.792 (gait), and mAP@0.5 = 0.724 (YOLO). YOLO + VideoMAE has the cleanest F1 score (0.969); Full Rule fusion has recall = 1.000 by enabling the MEDIUM branch to recover gait-supported cases missed by VideoMAE. Overall the system runs at 18-22\, FPS on a single NVIDIA T4. The single most useful operational contribution is the data-calibrated gait threshold ($\tau^* = 0.0642$, against the simulation-derived 0.4521): any deployment that skips this step quietly disables the MEDIUM and LOW alert branches.
+Gait-YOLO pairs object detection, action recognition, and gait analysis through a hierarchical rule cascade and a small learned MLP head. On the three benchmarks we tested against the per-branch numbers are F1 = 0.965 (VideoMAE), F1 = 0.792 (gait), and mAP@0.5 = 0.724 (YOLO). YOLO + VideoMAE has the cleanest F1 score (0.969); Full Rule fusion has recall = 1.000 by enabling the MEDIUM branch to recover gait-supported cases missed by VideoMAE. Overall the system runs at 18-22\,FPS on a single NVIDIA T4. The single most useful operational contribution is the data-calibrated gait threshold ($\tau^* = 0.0642$, against the simulation-derived 0.4521): any deployment that skips this step quietly disables the MEDIUM and LOW alert branches.
 
 % \FloatBarrier
 % \clearpage
