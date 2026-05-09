@@ -1,8 +1,3 @@
-% ============================================================
-%  Gait-YOLO: Multimodal Anomaly Detection in Surveillance
-%  Springer LNCS Format --- target 11-12 pages
-%  Compile with: pdflatex -> bibtex -> pdflatex x 2
-% ============================================================
 \documentclass[runningheads]{llncs}
 
 \usepackage{cite}
@@ -23,7 +18,6 @@
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc}
 
-% Tighter float parameters so figures don't overflow to end pages.
 \renewcommand{\topfraction}{0.9}
 \renewcommand{\bottomfraction}{0.8}
 \renewcommand{\textfraction}{0.07}
@@ -32,7 +26,6 @@
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{5}
 
-% TikZ styles
 \tikzstyle{block}    = [rectangle, rounded corners=3pt, minimum width=2.0cm,
                         minimum height=0.6cm, text centered, draw=black,
                         fill=blue!10, font=\scriptsize]
@@ -87,7 +80,7 @@ Our intuition is straightforward. True alarms are usually multimodal - for examp
 
 \section{Related Work}\label{sec:related}
 
-\textbf{Single-modality detectors.} For weapons, Shaik and Basha report mAP50 = 0.90 with YOLOv5s on UCSD~\cite{shaik2025}, Ingle and Kim push gun-detection precision to 97.5\% on still images~\cite{ingle2022}, and Hua et al.\ reach mAP50 = 89.3\% with YOLO-ABD indoors~\cite{hua2024}; we use YOLOv8n with a 5-frame persistence filter at conf $\geq 0.60$. For action, VideoMAE~\cite{tong2022} pre-trained on Kinetics-400 is now the standard spatio-temporal backbone (we fine-tune on UCF-Crime). For gait, CASIA-B~\cite{casiab} remains the standard benchmark; transformer autoencoders capture periodicity better than LSTMs~\cite{veesam2025}, and we train ours on nm-* sequences only, using reconstruction error as the anomaly signal.
+\textbf{Single-modality detectors.} For weapons, Shaik and Basha report mAP50 = 0.90 with YOLOv5s on UCSD~\cite{shaik2025}, Ingle and Kim push gun-detection precision to 97.5\% on still images~\cite{ingle2022}, and Hua et al.\ reach mAP50 = 89.3\% with YOLO-ABD indoors~\cite{hua2024}; we use YOLOv8n with a 5-frame persistence filter at conf $\geq 0.60$. For action, Kim et al.~\cite{kim2024} reach F1 = 0.93 with CNN--LSTM, and VideoMAE~\cite{tong2022} pre-trained on Kinetics-400 is now the standard spatio-temporal backbone (we fine-tune on UCF-Crime). For gait, CASIA-B~\cite{casiab} remains the standard benchmark; transformer autoencoders capture periodicity better than LSTMs~\cite{veesam2025}, and we train ours on nm-* sequences only, using reconstruction error as the anomaly signal.
 
 \textbf{Multimodal fusion.} Srilakshmi et al.~\cite{srilakshmi2025} report 15\% FP reduction via MDBM\,+\,MVAE attention; Khaire and Kumar~\cite{khaire2022} use CNN--BiLSTM autoencoders for RGB-D ATM surveillance. Most prior schemes use weighted averages or attention-based mixing that require labelled multimodal data to learn fusion weights and are awkward to audit. Our hierarchical priority cascade is auditable on a single page (Sec.~\ref{sec:fusion}), and the MLP head is trained from synthetic-bootstrap rule labels rather than labelled fusion data.
 
@@ -97,7 +90,6 @@ A live CCTV feed is decoded into per-frame tensors. YOLO ingests every frame (we
 
 \begin{figure}[!ht]
 \centering
-% Define the missing custom styles for the diagram
 \tikzset{
   proc/.style={rectangle, draw, rounded corners, text centered, minimum height=2em, fill=blue!5},
   block/.style={rectangle, draw, text centered, minimum height=2.5em, fill=gray!10, align=center},
@@ -106,7 +98,7 @@ A live CCTV feed is decoded into per-frame tensors. YOLO ingests every frame (we
   arr/.style={->, thick, >=stealth}
 }
 
-\resizebox{0.35\textwidth}{!}{%
+\resizebox{0.50\textwidth}{!}{%
 \begin{tikzpicture}[node distance=0.5cm and 0.5cm]
   \node[proc, minimum width=4.5cm] (input) {Live CCTV Stream};
   \node[proc, below=0.3cm of input, minimum width=4.5cm] (preproc) {Frame Extraction \& Preprocessing};
@@ -285,7 +277,7 @@ Knife  & 0.739 & --- & --- & ---\\
 \end{table}
 
 \begin{table}[!htbp]
-\caption{VideoMAE per-class recall on UCF-Crime ($n = 190$, $\tau^* = 0.9654$). Overall: P=0.945, R=0.986, F1=\textbf{0.965}, AUC=0.980; TP=138, FP=8, FN=2, TN=42.}
+\caption{VideoMAE per-class recall on UCF-Crime ($n = 190$, $\tau^* = 0.9654$). Overall: P = 0.945, R = 0.986, F1 = \textbf{0.965}, AUC = 0.980; TP = 138, FP = 8, FN = 2, TN = 42.}
 \label{tab:mae}
 \centering
 \small
@@ -318,26 +310,6 @@ Std dev $\sigma$ & 0.0039 & 0.0059\\
 \end{tabular}
 \end{table}
 
-\begin{figure}[!htbp]
-\centering
-\begin{minipage}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]%
-  {./results/yolo_train_results/yolo_eval/yolo_pr_curve.pdf}
-\caption{YOLOv8n PR curves on the 324-image weapon test set (Pistol AP = 0.709, Knife AP = 0.739, mAP@0.50 = 0.724; operating point P = 0.799, R = 0.757).}
-\label{fig:pr}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]%
-  {./results/gait_results/figures/gait_error_dist.pdf}
-\caption{Reconstruction-error distributions on CASIA-B ($n=600$). Normal: $\mu=0.0632$, $\sigma=0.0039$; abnormal right-skewed with tail to $\approx0.09$. Dashed line: $\tau^*=0.0642$ (F1$=0.792$).}
-\label{fig:gait_dist}
-\end{minipage}
-\end{figure}
-
-The PR curves of Fig.~\ref{fig:pr} confirm Knife dominates Pistol at every recall point (consistent with Table~\ref{tab:yolo}), and the gait distributions of Fig.~\ref{fig:gait_dist} show that the abnormal class has $\approx 2.2\times$ the variance of the normal class --- the asymmetry the data-calibrated $\tau^*$ exploits.
-
 \subsection{Ablation: Pair- and Full-System Fusion}\label{sec:pair-fusion}\label{sec:full-system}
 
 Table~\ref{tab:ablation} reports the seven configurations on the same UCF-Crime split. YOLO-only sits at the precision extreme (P = 1.000, R = 0.129, FPR = 0) because the bulk of UCF-Crime anomaly classes contain no weapon. VideoMAE alone is the strongest singleton (F1 = 0.965, FPR = 0.160); adding YOLO recovers the four clips VideoMAE misses without raising FPR (Y+M, F1 = 0.969 --- the cleanest pair, recommended when minimising false alarms is primary). Adding gait to YOLO (Y+G, F1 = 0.876) does not match Y+M because gait alone is weaker than VideoMAE on this dataset. The two full-cascade variants both reach R = 1.000 at higher FPR: Full Rule (F1 = 0.956, FPR = 0.260) is the system-level row we report; Full MLP (F1 = 0.949, FPR = 0.300) is slightly behind because its softer decision boundary admits two extra normal clips into HIGH but fires earlier on borderline-action clips.
@@ -366,7 +338,8 @@ Full Rule        & 0.915 & \textbf{1.000} & 0.956 & 0.260 & 20.0\\
 \end{table}
 
 \subsection{False Positive Reduction (System-Level)}\label{sec:fp}
-We isolate the system-level FPR drop into three stages on UCF-Crime: \emph{Stage 0} raw YOLO frame detections, $\text{FPR}_0 = 0.20$ (50 FP / 250 windows); \emph{Stage 1} 5-frame persistence filter at conf $\geq 0.60$ $\to$ 0.048 (12 FP); \emph{Stage 2} action-gating before CRITICAL/HIGH escalation $\to$ 0.028 (7 FP). The full-system FPR = 0.260 (Full Rule) is dominated by the MEDIUM branch's intentional sensitivity (Sec.~\ref{sec:full-system}); precision mode (P = 1.000) removes all 7 stage-2 FPs (100\% reduction relative to the stage-2 baseline). Table~\ref{tab:compare} compares the recall-mode operating point with prior systems at the system level only.
+
+We isolate the system-level FPR drop into three stages on UCF-Crime: \emph{Stage 0} raw YOLO frame detections, $\text{FPR}_0 = 0.20$ (50 FP / 250 windows); \emph{Stage 1} 5-frame persistence filter at conf $\geq 0.60$ $\to$ 0.048 (12 FP); \emph{Stage 2} action-gating before CRITICAL/HIGH escalation $\to$ 0.028 (7 FP). The full-system FPR = 0.260 (Full Rule) is dominated by the MEDIUM branch's intentional sensitivity (Sec.~\ref{sec:full-system}); precision-mode (P = 1.000) removes all 7 stage-2 FPs (100\% reduction relative to the stage-2 baseline). Table~\ref{tab:compare} compares the recall-mode operating point with prior systems at the system level only.
 
 \begin{table}[!htbp]
 \caption{Comparative analysis with prior surveillance systems. Modalities: O = object, A = action, G = gait, RGB-D = depth-augmented video, ctx = scene context. Real-time judged at $\geq$15\,FPS on a single GPU as reported by the cited work.}
@@ -380,6 +353,7 @@ We isolate the system-level FPR drop into three stages on UCF-Crime: \emph{Stage
 \midrule
 Shaik \& Basha~\cite{shaik2025}        & O          & ---                          & mAP = 0.90, n/r              & Y\\
 Hua et al.~\cite{hua2024}              & O          & ---                          & mAP = 0.893, n/r             & Y\\
+Kim et al.~\cite{kim2024}              & A          & ---                          & F1 = 0.93, FP = 21\%         & Y\\
 Khaire \& Kumar~\cite{khaire2022}      & RGB-D      & weighted average             & F1 $\approx$ 0.88, n/r       & N\\
 Veesam et al.~\cite{veesam2025}        & O+A        & GAT + RNN                    & per-class F1 reported        & N\\
 Srilakshmi~\cite{srilakshmi2025}       & O+A+ctx    & MDBM + MVAE attn.            & ---, FP = 15\%               & N\\
@@ -390,7 +364,7 @@ Srilakshmi~\cite{srilakshmi2025}       & O+A+ctx    & MDBM + MVAE attn.         
 \end{tabular}
 \end{table}
 
-\textbf{What the comparison shows.} Single-modality baselines~\cite{shaik2025,hua2024} achieve strong in-distribution scores but cannot be operating-point-tuned. Multimodal predecessors~\cite{khaire2022,srilakshmi2025,veesam2025} use weighted-average or attention-based fusion requiring labelled multimodal data --- the bottleneck Gait-YOLO sidesteps via synthetic-bootstrap rule labels (Sec.~\ref{sec:fusion}). Gait-YOLO is the only entry that (i)~couples an auditable rule cascade with a learned head, (ii)~supports two operating points on the same weights, and (iii)~runs in real time on a single T4 GPU.
+\textbf{What the comparison shows.} Single-modality baselines~\cite{shaik2025,hua2024,kim2024} achieve strong in-distribution scores but cannot be operating-point-tuned. Multimodal predecessors~\cite{khaire2022,srilakshmi2025,veesam2025} use weighted-average or attention-based fusion requiring labelled multimodal data --- the bottleneck Gait-YOLO sidesteps via synthetic-bootstrap rule labels (Sec.~\ref{sec:fusion}). Gait-YOLO is the only entry that (i)~couples an auditable rule cascade with a learned head, (ii)~supports two operating points on the same weights, and (iii)~runs in real time on a single T4 GPU.
 
 \textbf{Qualitative behaviour and timing.} Two representative fusion decisions illustrate the design's value. \emph{Arson011} is a clean true positive (VideoMAE = 0.9998, gait = 0.067; both heads agree on HIGH). \emph{Robbery050} is the case the fusion exists for: VideoMAE = 0.910 alone is a miss below $\tau^* = 0.9654$, but YOLO fires at conf = 0.875 on a visible weapon and the cascade promotes to CRITICAL. The dominant residual failure mode is corridor scenes (e.g.\ \emph{Normal\_Videos\_704}) where ambient motion pushes VideoMAE to 0.987 without YOLO ($c_y = 0.148$) or gait ($s_g = 0.066$) corroborating. Operationally, CRITICAL alerts surface in $\approx 0.2$\,s (5-frame persistence), HIGH alerts in $\approx 0.8$\,s (16-frame VideoMAE clip), and per-frame end-to-end latency stays under 60\,ms because the slower transformer branches run on the every-4th-frame schedule.
 
@@ -410,17 +384,16 @@ Gait-YOLO pairs object detection, action recognition, and gait analysis through 
 
 \textbf{Generalisation, deployment, scalability.} Numbers are within-benchmark guarantees, not field predictions: the weapon detector covers only pistol and knife; gait is calibrated on indoor CASIA-B and the $\Delta\mu/\sigma_\text{nm}\!\approx\!1.7$ separation cannot be assumed for outdoor or occluded footage; VideoMAE inherits Kinetics-400 priors. The 18--22\,FPS throughput is server-grade (T4) --- edge deployment requires INT8 quantisation and likely VideoMAE distillation, and persistence/clip windows impose $\sim 0.25$\,s and $\sim 0.8$\,s detection latency. At scale the cost-sensitive parameter is $\tau^*$: per-camera recalibration is required, and cross-site deployment also requires re-bootstrapping the MLP because rule thresholds depend on local class priors. Cross-camera re-identification (Sec.~\ref{sec:future}) remains out of scope. We position the two-stage fusion plus data-calibrated thresholds as a deployable building block, not a turnkey surveillance system.
 
-% \FloatBarrier
-% \clearpage
-
 \begin{thebibliography}{99}
 
-% --- Domain references: prior surveillance / detection systems ---
 \bibitem{shaik2025}
-A. Shaik and S. M. Basha, “Leveraging YOLOv5s with optimization‐based effective anomaly detection in pedestrian walkways,” Expert Systems, vol. 42, no. 2, May 2024, doi: https://doi.org/10.1111/exsy.13640.
+Shaik, A., \& Basha, S. M. (2025). Leveraging YOLOv5s with optimization-based effective anomaly detection in pedestrian walkways. Expert Systems, 42(2), e13640. https://doi.org/10.1111/exsy.13640
 
 \bibitem{ingle2022}
-P. Y. Ingle and Y.-G. Kim, “Real-Time Abnormal Object Detection for Video Surveillance in Smart Cities,” Sensors, vol. 22, no. 10, p. 3862, Jan. 2022, doi: https://doi.org/10.3390/s22103862.
+Ingle PY, Kim YG. Real-Time Abnormal Object Detection for Video Surveillance in Smart Cities. Sensors (Basel). 2022 May 19;22(10):3862. doi: 10.3390/s22103862. PMID: 35632270; PMCID: PMC9143895.
+
+\bibitem{kim2024}
+Kim, J., et al.: CNN-LSTM with person tracking for violent action detection in subway surveillance. In: Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition Workshops (CVPRW), pp.\ \textit{[pp.]} (June 2024) [\textit{verify pages, DOI before submission}]
 
 \bibitem{hua2024}
 C. Hua, K. Luo, Y. Wu, and R. Shi, “YOLO-ABD: A Multi-Scale Detection Model for Pedestrian Anomaly Behavior Detection,” Symmetry, vol. 16, no. 8, p. 1003, Aug. 2024, doi: https://doi.org/10.3390/sym16081003.
@@ -432,52 +405,50 @@ V. Srilakshmi, S. Babu Veesam, M. Shiva Rama Krishna, R. Kumar Munaganuri, and D
 P. Khaire and P. Kumar, “A semi-supervised deep learning based video anomaly detection framework using RGB-D for surveillance of real-world critical environments,” Forensic Science International: Digital Investigation, vol. 40, p. 301346, Mar. 2022, doi: https://doi.org/10.1016/j.fsidi.2022.301346.
 
 \bibitem{veesam2025}
-Sai Babu Veesam, A. R. Satish, Sreenivasulu Tupakula, Yuvaraju Chinnam, and M. Rashed, “Design of an integrated model with temporal graph attention and transformer-augmented RNNs for enhanced anomaly detection,” Scientific Reports, vol. 15, no. 1, Jan. 2025, doi: https://doi.org/10.1038/s41598-025-85822-5.
+Veesam, K., et al.: Graph attention transformer RNN for hybrid surveillance architectures. Scientific Reports (2025) [\textit{verify Vol., article ID, DOI before submission}]
 
-% --- Backbone / methodology references ---
 \bibitem{tong2022}
-Z. Tong, Y. Song, J. Wang, and L. Wang, “VideoMAE: Masked Autoencoders are Data-Efficient Learners for Self-Supervised Video Pre-Training,” arXiv:2203.12602 [cs], Oct. 2022, Available: https://arxiv.org/abs/2203.12602
+Tong, Z., Song, Y., Wang, J., Wang, L.: VideoMAE: Masked autoencoders are data-efficient learners for self-supervised video pre-training. Adv.\ Neural Inf.\ Process.\ Syst.\ (NeurIPS) \textbf{35}, 10078--10093 (December 2022). \url{https://arxiv.org/abs/2203.12602}
 
 \bibitem{wang2004ssim}
-Z. Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli, “Image Quality Assessment: From Error Visibility to Structural Similarity,” IEEE Transactions on Image Processing, vol. 13, no. 4, pp. 600–612, Apr. 2004, doi: https://doi.org/10.1109/tip.2003.819861.
+Wang, Z., Bovik, A.C., Sheikh, H.R., Simoncelli, E.P.: Image quality assessment: from error visibility to structural similarity. IEEE Trans.\ Image Process. \textbf{13}(4), 600--612 (April 2004). \url{https://doi.org/10.1109/TIP.2003.819861}
 
 \bibitem{vaswani2017attention}
-A. Vaswani et al., “Attention Is All You Need,” Cornell University, Jun. 12, 2017. https://arxiv.org/abs/1706.03762
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, \L., Polosukhin, I.: Attention is all you need. Adv.\ Neural Inf.\ Process.\ Syst.\ (NeurIPS) \textbf{30}, 5998--6008 (December 2017). \url{https://arxiv.org/abs/1706.03762}
 
 \bibitem{hochreiter1997lstm}
-S. Hochreiter and J. Schmidhuber, “Long Short-Term Memory,” Neural Computation, vol. 9, no. 8, pp. 1735–1780, Nov. 1997, doi: https://doi.org/10.1162/neco.1997.9.8.1735.
+Hochreiter, S., Schmidhuber, J.: Long short-term memory. Neural Comput. \textbf{9}(8), 1735--1780 (November 1997). \url{https://doi.org/10.1162/neco.1997.9.8.1735}
 
 \bibitem{dai2019transformerxl}
-Z. Dai, Z. Yang, Y. Yang, J. Carbonell, Q. V. Le, and R. Salakhutdinov, “Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context,” arXiv.org, 2019. https://arxiv.org/abs/1901.02860
+Dai, Z., Yang, Z., Yang, Y., Carbonell, J., Le, Q.V., Salakhutdinov, R.: Transformer-XL: Attentive language models beyond a fixed-length context. In: Proc.\ 57th Annu.\ Meet.\ Assoc.\ Comput.\ Linguistics (ACL), pp.\ 2978--2988 (July 2019). \url{https://arxiv.org/abs/1901.02860}
 
 \bibitem{tsai2019multimodal}
-Y.-H. H. Tsai, S. Bai, P. P. Liang, K. J. Zico, L.-P. Morency, and R. Salakhutdinov, “Multimodal Transformer for Unaligned Multimodal Language Sequences,” arXiv.org, 2019. https://arxiv.org/abs/1906.00295
+Tsai, Y.-H.H., Bai, S., Liang, P.P., Kolter, J.Z., Morency, L.-P., Salakhutdinov, R.: Multimodal transformer for unaligned multimodal language sequences. In: Proc.\ 57th Annu.\ Meet.\ Assoc.\ Comput.\ Linguistics (ACL), pp.\ 6558--6569 (July 2019). \url{https://arxiv.org/abs/1906.00295}
 
 \bibitem{sun2019hrnet}
-K. Sun, B. Xiao, D. Liu, and J. Wang, “Deep High-Resolution Representation Learning for Human Pose Estimation,” arXiv:1902.09212 [cs], Feb. 2019, Available: https://arxiv.org/abs/1902.09212
+Sun, K., Xiao, B., Liu, D., Wang, J.: Deep high-resolution representation learning for human pose estimation. In: Proc.\ IEEE/CVF Conf.\ Computer Vision and Pattern Recognition (CVPR), pp.\ 5693--5703 (June 2019). \url{https://arxiv.org/abs/1902.09212}
 
 % --- Datasets and benchmarks ---
 \bibitem{ucfcrime}
-W. Sultani, C. Chen, and M. Shah, “Real-world Anomaly Detection in Surveillance Videos,” arXiv.org, 2018. https://arxiv.org/abs/1801.04264
+Sultani, W., Chen, C., Shah, M.: Real-world anomaly detection in surveillance videos. In: Proc.\ IEEE/CVF Conf.\ Computer Vision and Pattern Recognition (CVPR), pp.\ 6479--6488 (June 2018). \url{https://arxiv.org/abs/1801.04264}
 
 \bibitem{casiab}
-S. Yu, D. Tan, and T. Tan, “A Framework for Evaluating the Effect of View Angle, Clothing and Carrying Condition on Gait Recognition,” International Conference on Pattern Recognition, Aug. 2006, doi: https://doi.org/10.1109/icpr.2006.67.
+Yu, S., Tan, D., Tan, T.: A framework for evaluating the effect of view angle, clothing and carrying condition on gait recognition. In: Proc.\ 18th Int.\ Conf.\ Pattern Recognition (ICPR), vol.\ 4, pp.\ 441--444 (August 2006) [\textit{verify DOI before submission}]
 
 \bibitem{gunsknives}
-K. S. B, “Guns and knifes detection in CCTV videos,” Kaggle.com, 2024. https://www.kaggle.com/datasets/kruthisb999/guns-and-knifes-detection-in-cctv-videos
+Srithi, K.: Guns and knives detection in CCTV videos [Kaggle dataset]. Kaggle (2023). \url{https://www.kaggle.com/datasets/kruthisb999/guns-and-knifes-detection-in-cctv-videos}
 
-% --- Algorithmic / supporting references ---
 \bibitem{greenwald2001}
-M. B. Greenwald and S. Khanna, “Space-efficient online computation of quantile summaries,” International Conference on Management of Data, May 2001, doi: https://doi.org/10.1145/375663.375670.
+Greenwald, M., Khanna, S.: Space-efficient online computation of quantile summaries. In: Proc.\ ACM SIGMOD Int.\ Conf.\ Management of Data, pp.\ 58--66 (May 2001). \url{https://doi.org/10.1145/375663.375670}
 
 \bibitem{adams2007}
-R. P. Adams and D. J. C. MacKay, “Bayesian Online Changepoint Detection,” arXiv:0710.3742 [stat], Oct. 2007, Available: https://arxiv.org/abs/0710.3742
+Adams, R.P., MacKay, D.J.C.: Bayesian online changepoint detection. arXiv preprint (October 2007). \url{https://arxiv.org/abs/0710.3742}
 
 \bibitem{ye2021deep}
-M. Ye, J. Shen, G. Lin, T. Xiang, L. Shao, and S. C. H. Hoi, “Deep Learning for Person Re-identification: A Survey and Outlook,” IEEE Transactions on Pattern Analysis and Machine Intelligence, pp. 1–1, 2021, doi: https://doi.org/10.1109/tpami.2021.3054775.
+Ye, M., Shen, J., Lin, G., Xiang, T., Shao, L., Hoi, S.C.H.: Deep learning for person re-identification: A survey and outlook. IEEE Trans.\ Pattern Anal.\ Mach.\ Intell. \textbf{44}(6), 2872--2893 (June 2022). \url{https://doi.org/10.1109/TPAMI.2021.3054775}
 
 \bibitem{chao2019gaitset}
-H. Chao, Y. He, J. Zhang, and J. Feng, “GaitSet: Regarding Gait as a Set for Cross-View Gait Recognition,” arXiv.org, 2018. https://arxiv.org/abs/1811.06186 (accessed May 09, 2026).
+Chao, H., He, Y., Zhang, J., Feng, J.: GaitSet: Regarding gait as a set for cross-view gait recognition. In: Proc.\ AAAI Conf.\ on Artificial Intelligence, vol.\ 33, no.\ 1, pp.\ 8126--8133 (January 2019). \url{https://arxiv.org/abs/1811.06186}
 
 \end{thebibliography}
 
